@@ -1,0 +1,25 @@
+{
+  "name": "Hydro USV Architecture",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "containerEnv": {
+    "PUPPETEER_SKIP_DOWNLOAD": "true",
+    "PUPPETEER_EXECUTABLE_PATH": "/usr/bin/chromium"
+  },
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y --no-install-recommends chromium && npm ci",
+  "forwardPorts": [4173],
+  "portsAttributes": {
+    "4173": {
+      "label": "Architecture Atlas Preview",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bierner.markdown-mermaid",
+        "DavidAnson.vscode-markdownlint",
+        "bpruitt-goddard.mermaid-markdown-syntax-highlighting"
+      ]
+    }
+  }
+}

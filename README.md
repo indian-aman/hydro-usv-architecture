@@ -1,6 +1,11 @@
 # Autonomous Hydrographic Survey USV — Architecture & Flow Diagrams
 
+[![CI](https://github.com/indian-aman/hydro-usv-architecture/actions/workflows/ci.yml/badge.svg)](https://github.com/indian-aman/hydro-usv-architecture/actions/workflows/ci.yml)
+[![Deploy GitHub Pages](https://github.com/indian-aman/hydro-usv-architecture/actions/workflows/pages.yml/badge.svg)](https://indian-aman.github.io/hydro-usv-architecture/)
+
 > Companion system architecture, mission state-machine, CUDA multibeam bathymetry, and COLREGs safety diagrams for **[hydro-usv-ros2](https://github.com/indian-aman/hydro-usv-ros2)**.
+
+**[Interactive Architecture Atlas (GitHub Pages)](https://indian-aman.github.io/hydro-usv-architecture/)** · **[Open in GitHub Codespaces](https://codespaces.new/indian-aman/hydro-usv-architecture)** · **[Contributing Guide](CONTRIBUTING.md)**
 
 ---
 
