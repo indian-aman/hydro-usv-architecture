@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Autonomous Hydrographic Survey USV — Architecture Atlas</title>
+    <meta
+      name="description"
+      content="Interactive system architecture, mission state-machine, CUDA multibeam bathymetry, EKF sensor fusion, COLREGS obstacle avoidance, power management, telemetry, and safety diagrams for an autonomous hydrographic survey USV."
+    />
+    <meta
+      property="og:title"
+      content="Autonomous Hydrographic Survey USV — Architecture Atlas"
+    />
+    <meta
+      property="og:description"
+      content="8 vector architecture and operational flow diagrams rendered directly from indian-aman/hydro-usv-architecture."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311698b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 16c2.2-1.8 4.4-1.8 6.6 0s4.4 1.8 6.6 0c1.4-1.1 2.8-1.6 4.8-1.1'/%3E%3Cpath d='M4 11l8-6 8 6'/%3E%3Ccircle cx='12' cy='10.5' r='1.7' fill='%2311698b'/%3E%3C/svg%3E"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("hydro-usv-theme");
+          var prefersDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          if (saved === "dark" || (!saved && prefersDark)) {
+            document.documentElement.setAttribute("data-theme", "dark");
+          }
+        } catch (_) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#atlas-main">Skip to architecture diagrams</a>
+
+    <header class="mobile-bar">
+      <button
+        type="button"
+        class="btn btn--icon"
+        id="mobile-menu-btn"
+        aria-label="Open diagram navigation"
+        aria-controls="chapter-rail"
+        aria-expanded="false"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M2.5 4h11M2.5 8h11M2.5 12h11"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+      <span class="mobile-bar__title">Hydro USV Architecture</span>
+      <button
+        type="button"
+        class="btn btn--icon"
+        id="mobile-theme-btn"
+        aria-label="Toggle color theme"
+      >
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="8" cy="8" r="3.2" stroke="currentColor" stroke-width="1.4" />
+          <path
+            d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1"
+            stroke="currentColor"
+            stroke-width="1.3"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+    </header>
+
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+    <div class="shell">
+      <aside class="rail" id="chapter-rail" aria-label="Diagram directory">
+        <div class="rail__head">
+          <a class="brand" href="#top">
+            <span class="brand__mark" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M3 16c2.2-1.8 4.4-1.8 6.6 0s4.4 1.8 6.6 0c1.4-1.1 2.8-1.6 4.8-1.1"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M4 11l8-6 8 6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <circle cx="12" cy="10.5" r="1.7" fill="currentColor" />
+              </svg>
+            </span>
+            <span class="brand__text">
+              <span class="brand__name">hydro-usv-architecture</span>
+              <span class="brand__meta" id="rail-count">8 Architecture Plates</span>
+            </span>
+          </a>
+
+          <div class="search-wrap">
+            <svg
+              class="search-icon"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle
+                cx="7"
+                cy="7"
+                r="4.5"
+                stroke="currentColor"
+                stroke-width="1.4"
+              />
+              <path
+                d="M10.5 10.5L14 14"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+              />
+            </svg>
+            <input
+              id="diagram-search"
+              class="search-input"
+              type="search"
+              placeholder="Search diagrams or nodes…"
+              aria-label="Search diagrams or node labels"
+              autocomplete="off"
+            />
+            <span class="search-kbd" aria-hidden="true">/</span>
+          </div>
+        </div>
+
+        <nav class="rail__nav" aria-label="Architecture chapters">
+          <div class="rail__label">
+            <span>Diagrams</span>
+            <span id="filter-status"></span>
+          </div>
+          <ol class="chapter-list" id="chapter-list"></ol>
+        </nav>
+
+        <div class="rail__foot">
+          <a
+            class="rail__ext-link"
+            href="https://github.com/indian-aman/hydro-usv-ros2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>Companion ROS 2 Stack</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a
+            class="rail__ext-link"
+            href="https://github.com/indian-aman/hydro-usv-architecture/blob/main/README.md"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>Source README.md</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a
+            class="rail__ext-link"
+            href="https://github.com/indian-aman/hydro-usv-architecture/edit/main/README.md"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>Edit on GitHub</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </aside>
+
+      <main class="atlas-main" id="atlas-main">
+        <header class="doc-header" id="top">
+          <div class="doc-header__top">
+            <div>
+              <h1 class="doc-title" id="doc-title">
+                Autonomous Hydrographic Survey USV
+              </h1>
+              <p class="doc-lead" id="doc-lead">
+                Companion system architecture, mission state-machine, CUDA
+                multibeam bathymetry, sensor fusion, COLREGS obstacle avoidance,
+                and safety diagrams for
+                <a
+                  href="https://github.com/indian-aman/hydro-usv-ros2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >hydro-usv-ros2</a
+                >.
+              </p>
+            </div>
+          </div>
+
+          <div class="doc-toolbar">
+            <span class="doc-meta" id="doc-meta">
+              8 SVG diagrams · Single source: README.md
+            </span>
+
+            <div class="toolbar-group">
+              <div
+                class="segmented"
+                role="group"
+                aria-label="Diagram reading mode"
+              >
+                <button
+                  type="button"
+                  class="segmented__btn"
+                  id="mode-all-btn"
+                  aria-pressed="true"
+                >
+                  All Diagrams
+                </button>
+                <button
+                  type="button"
+                  class="segmented__btn"
+                  id="mode-focus-btn"
+                  aria-pressed="false"
+                >
+                  Focused
+                </button>
+              </div>
+
+              <button
+                type="button"
+                class="btn"
+                id="desktop-theme-btn"
+                aria-label="Toggle color theme"
+              >
+                <span id="theme-label">Dark</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <section class="empty-state" id="empty-state" hidden>
+          <h2 class="empty-state__title">No matching diagrams</h2>
+          <p class="empty-state__text" id="empty-state-text">
+            Try searching for subsystems such as CUDA, COLREGS, EKF, MBES,
+            LiDAR, MAVLink, or Battery.
+          </p>
+          <button type="button" class="btn btn--primary" id="clear-search-btn">
+            Clear search filter
+          </button>
+        </section>
+
+        <div class="diagram-stream" id="diagram-stream"></div>
+
+        <nav
+          class="reader-pager"
+          id="reader-pager"
+          aria-label="Diagram pagination"
+          hidden
+        >
+          <button type="button" class="btn" id="pager-prev-btn">
+            ← Previous Diagram
+          </button>
+          <span class="reader-pager__status" id="pager-status">1 / 8</span>
+          <button type="button" class="btn" id="pager-next-btn">
+            Next Diagram →
+          </button>
+        </nav>
+
+        <footer class="doc-footer">
+          <span>
+            Auto-generated from
+            <a
+              href="https://github.com/indian-aman/hydro-usv-architecture/blob/main/README.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              >README.md</a
+            >
+            via GitHub Actions &amp; Mermaid CLI.
+          </span>
+          <span id="build-timestamp"></span>
+        </footer>
+      </main>
+    </div>
+
+    <div
+      class="lightbox"
+      id="lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="lightbox-title"
+      hidden
+    >
+      <div class="lightbox__bar">
+        <div class="lightbox__title-wrap">
+          <span class="plate__index" id="lightbox-index">01</span>
+          <h2 class="lightbox__title" id="lightbox-title">Diagram Inspector</h2>
+        </div>
+
+        <div class="plate__actions">
+          <div class="zoom-group" role="group" aria-label="Inspector zoom">
+            <button
+              type="button"
+              class="btn btn--icon"
+              id="lb-zoom-out"
+              aria-label="Zoom out"
+              title="Zoom out (-)"
+            >
+              −
+            </button>
+            <span class="zoom-readout" id="lb-zoom-val">100%</span>
+            <button
+              type="button"
+              class="btn btn--icon"
+              id="lb-zoom-in"
+              aria-label="Zoom in"
+              title="Zoom in (+)"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              class="btn"
+              id="lb-zoom-fit"
+              title="Fit to screen (0)"
+            >
+              Fit
+            </button>
+          </div>
+          <button type="button" class="btn" id="lb-copy-btn">Copy</button>
+          <a class="btn" id="lb-download-btn" download>SVG</a>
+          <button type="button" class="btn btn--primary" id="lb-close-btn">
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div class="lightbox__stage" id="lightbox-stage">
+        <div class="plate__canvas" id="lightbox-canvas">
+          <img class="plate__img" id="lightbox-img" alt="" draggable="false" />
+        </div>
+        <span class="plate__hint">Scroll to zoom · Drag to pan · Esc to close</span>
+      </div>
+    </div>
+
+    <script id="diagram-manifest" type="application/json">
+      <!--__MANIFEST_JSON__-->
+    </script>
+    <script src="app.js" defer></script>
+  </body>
+</html>
