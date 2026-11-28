@@ -364,7 +364,7 @@
 
     <!-- Top-Right Compact Utility Buttons -->
     <div class="fixed top-3 right-3 z-30 flex items-center gap-1.5">
-      <a href="index.html" class="hud-btn" title="Back to Architecture Atlas Diagrams">← Diagrams</a>
+      <a id="nav-back-btn" href="index.html" class="hud-btn" title="Back to Architecture Atlas Diagrams">← Diagrams</a>
       <button id="btn-telemetry-toggle" class="hud-btn is-active" title="Toggle live telemetry panel">
         Telemetry
       </button>
@@ -523,6 +523,7 @@
             Cam
           </span>
           <button class="hud-btn is-active" data-cam="chase">Chase</button>
+          <button class="hud-btn" data-cam="hero">Hero Orbit</button>
           <button class="hud-btn" data-cam="underwater">Underwater Sonar</button>
           <button class="hud-btn" data-cam="bow">Bow Close-Up</button>
           <button class="hud-btn" data-cam="overhead">Tactical Map</button>
@@ -1220,26 +1221,34 @@
 
             vec3 H = normalize(V + uSunDir);
             float NdotH = max(dot(N, H), 0.0);
-            float rough = 0.052;
-            float a2 = rough * rough;
-            float denom = NdotH * NdotH * (a2 - 1.0) + 1.0;
-            float ggx = a2 / (3.14159265 * denom * denom + 0.0001);
-            vec3 sunSpec = uSunCol * ggx * 0.48 * smoothstep(-0.04, 0.10, uSunDir.y);
+            // Dual-lobe GGX: broad golden sun path + razor-sharp dancing glitter diamonds
+            float rBroad = 0.105;
+            float a2B = rBroad * rBroad;
+            float dB = NdotH * NdotH * (a2B - 1.0) + 1.0;
+            float ggxBroad = a2B / (3.14159265 * dB * dB + 0.0001);
+
+            float rGlint = 0.018;
+            float a2G = rGlint * rGlint;
+            float dG = NdotH * NdotH * (a2G - 1.0) + 1.0;
+            float ggxGlint = a2G / (3.14159265 * dG * dG + 0.0001);
+
+            float sunElev = smoothstep(-0.04, 0.10, uSunDir.y);
+            vec3 sunSpec = uSunCol * (ggxBroad * 0.34 + min(ggxGlint * 0.22, 6.5)) * sunElev;
 
             // Deep oceanic body color + emerald subsurface scattering on sunlit wave crests
-            vec3 deepWater = vec3(0.009, 0.065, 0.125);
-            vec3 shallowTint = vec3(0.024, 0.195, 0.255);
+            vec3 deepWater = vec3(0.008, 0.062, 0.122);
+            vec3 shallowTint = vec3(0.022, 0.205, 0.265);
             float sssView = pow(clamp(dot(V, -uSunDir + N * 0.55), 0.0, 1.0), 3.2);
             float sssCrest = smoothstep(0.05, 0.42, vCrest) * (0.45 + 0.55 * sssView);
             vec3 waterBody = mix(deepWater, shallowTint, clamp(0.35 + sssCrest * 0.85, 0.0, 1.0));
-            waterBody += vec3(0.05, 0.42, 0.38) * sssCrest * clamp(uSunDir.y * 2.2 + 0.35, 0.18, 1.2);
+            waterBody += vec3(0.05, 0.44, 0.40) * sssCrest * clamp(uSunDir.y * 2.2 + 0.35, 0.18, 1.2);
 
-            // Dynamic Kelvin V-wake, propwash trail & bow wave foam (fast 2-octave cellular noise)
+            // Dynamic Kelvin V-wake, propwash trail, bow mustache foam & hull contact AO shadow
             float foam = 0.0;
-            float foamTex = vnoise(vWorldPos.xz * 1.45 - vec2(uTime * 0.35, uTime * 0.22)) * 0.65
-                          + vnoise(vWorldPos.xz * 3.8 + vec2(uTime * 0.55, -uTime * 0.42)) * 0.35;
+            float hullAO = 1.0;
+            float foamTex = vnoise(vWorldPos.xz * 1.65 - vec2(uTime * 0.35, uTime * 0.22)) * 0.62
+                          + vnoise(vWorldPos.xz * 4.6 + vec2(uTime * 0.62, -uTime * 0.46)) * 0.38;
 
-            // Only evaluate USV wake loop within 42m of vessel (massive GPU speedup!)
             if (length(vWorldPos.xz - uUsvPos.xz) < 42.0) {
               for (int i = 0; i < 32; i++) {
                 vec4 wp = uWakePts[i];
@@ -1247,51 +1256,56 @@
                   float age = wp.z;
                   float radius = 0.68 + age * 4.5;
                   float dWake = length(vWorldPos.xz - wp.xy);
-                  float core = exp(-(dWake * dWake) / (0.62 + age * 2.4)) * (1.0 - age) * 0.78;
-                  float vArm = exp(-pow((dWake - radius * 0.72) / (0.40 + age * 0.70), 2.0)) * (1.0 - age) * 0.64;
+                  float core = exp(-(dWake * dWake) / (0.60 + age * 2.3)) * (1.0 - age) * 0.84;
+                  float vArm = exp(-pow((dWake - radius * 0.72) / (0.38 + age * 0.68), 2.0)) * (1.0 - age) * 0.68;
                   foam = max(foam, (core + vArm) * wp.w);
                 }
               }
-              // Bow wave collar around twin pontoons
               vec2 relUsv = vWorldPos.xz - uUsvPos.xz;
               vec2 uf = normalize(uUsvFwd);
               vec2 ur = vec2(uf.y, -uf.x);
               float uAlong = dot(relUsv, uf);
               float uAcross = abs(dot(relUsv, ur));
-              float bowSpray = exp(-pow((uAlong - 1.95) / 0.82, 2.0)) * exp(-pow((uAcross - 0.72) / 0.52, 2.0));
-              foam = max(foam, bowSpray * clamp(uUsvSpeed * 0.45, 0.05, 1.0));
+              // Physical ambient occlusion shadow grounding USV twin hulls into water
+              float underHull = smoothstep(2.4, 1.6, abs(uAlong)) * smoothstep(1.35, 0.65, uAcross);
+              hullAO *= (1.0 - underHull * 0.46);
+              // Crisp twin-bow splash collar + aerated stern thruster boil
+              float bowSpray = exp(-pow((uAlong - 1.98) / 0.72, 2.0)) * exp(-pow((uAcross - 0.72) / 0.48, 2.0));
+              float sternBoil = exp(-pow((uAlong + 2.35) / 0.95, 2.0)) * exp(-pow((uAcross - 0.66) / 0.46, 2.0));
+              foam = max(foam, max(bowSpray, sternBoil * 1.15) * clamp(uUsvSpeed * 0.48, 0.06, 1.05));
             }
 
-            // Crossing traffic vessel wake
             vec2 relT = vWorldPos.xz - uTrafficPos.xz;
             if (dot(relT, relT) < 520.0) {
               vec2 tf = normalize(uTrafficFwd);
               vec2 tr = vec2(tf.y, -tf.x);
               float tAlong = dot(relT, tf);
               float tAcross = abs(dot(relT, tr));
+              float underT = smoothstep(4.5, 3.1, abs(tAlong)) * smoothstep(1.75, 0.9, tAcross);
+              hullAO *= (1.0 - underT * 0.45);
               if (tAlong < 4.5 && tAlong > -18.0 && tAcross < 6.5) {
                 float tSpread = max(0.9, (-tAlong + 4.0) * 0.28);
-                float tWake = exp(-pow((tAcross - tSpread * 0.65) / 0.72, 2.0)) * smoothstep(-18.0, -1.0, tAlong);
-                float tWash = exp(-(tAcross * tAcross) / 1.4) * smoothstep(-15.0, -3.5, tAlong) * smoothstep(2.0, -3.5, tAlong);
-                foam = max(foam, (tWake * 0.65 + tWash * 0.85));
+                float tWake = exp(-pow((tAcross - tSpread * 0.65) / 0.70, 2.0)) * smoothstep(-18.0, -1.0, tAlong);
+                float tWash = exp(-(tAcross * tAcross) / 1.35) * smoothstep(-15.0, -3.5, tAlong) * smoothstep(2.0, -3.5, tAlong);
+                float tBow = exp(-pow((tAlong - 3.85) / 0.95, 2.0)) * exp(-(tAcross * tAcross) / 1.2);
+                foam = max(foam, max(tWake * 0.68 + tWash * 0.88, tBow * 0.85));
               }
             }
 
-            // Natural wind-driven whitecaps on steep wave crests
-            float whitecap = smoothstep(0.28, 0.62, vCrest + (uSeaScale - 0.85) * 0.25) * smoothstep(0.48, 0.78, foamTex);
-            foam = clamp(foam * smoothstep(0.22, 0.68, foamTex) * 1.45 + whitecap * 0.62, 0.0, 1.0);
+            float whitecap = smoothstep(0.27, 0.60, vCrest + (uSeaScale - 0.85) * 0.25) * smoothstep(0.46, 0.76, foamTex);
+            foam = clamp(foam * smoothstep(0.20, 0.66, foamTex) * 1.5 + whitecap * 0.66, 0.0, 1.0);
 
-            vec3 col = mix(waterBody, reflCol, clamp(fresnel * 0.92 + 0.04, 0.0, 0.96)) + sunSpec;
-            vec3 foamCol = mix(uHorizonCol * 0.65 + vec3(0.32), vec3(0.97, 0.99, 1.0), 0.74) * (0.55 + 0.55 * clamp(uSunDir.y * 2.2 + 0.25, 0.2, 1.0));
+            vec3 col = (mix(waterBody, reflCol, clamp(fresnel * 0.92 + 0.04, 0.0, 0.96)) + sunSpec) * hullAO;
+            // Aerated cyan-white marine foam
+            vec3 aeratedTint = mix(vec3(0.48, 0.85, 0.88), vec3(0.97, 0.99, 1.0), smoothstep(0.25, 0.78, foam));
+            vec3 foamCol = mix(uHorizonCol * 0.55 + vec3(0.36), aeratedTint, 0.78) * (0.55 + 0.55 * clamp(uSunDir.y * 2.2 + 0.25, 0.2, 1.0));
             col = mix(col, foamCol, foam);
 
-            // Seamless atmospheric horizon melt into sky
-            float fog = smoothstep(65.0, 340.0, dist);
+            float fog = smoothstep(70.0, 350.0, dist);
             vec3 horizonSky = evalSky(normalize(vec3(-V.x, 0.008, -V.z)), uSunDir, uZenithCol, uHorizonCol, uSunCol, uTime);
             col = mix(col, horizonSky, fog);
 
-            // Translucent water window revealing painted CUDA bathymetry below
-            float alpha = clamp(mix(0.46, 0.97, fresnel) + foam * 0.55 + fog, 0.42, 1.0);
+            float alpha = clamp(mix(0.46, 0.97, fresnel) + foam * 0.58 + fog, 0.42, 1.0);
 
             col = (col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14);
             col = pow(clamp(col, 0.0, 1.0), vec3(1.0 / 2.2));
@@ -1304,7 +1318,7 @@
           "uUsvSpeed", "uTrafficPos", "uTrafficFwd"
         ]);
 
-        // --- D. Cook-Torrance PBR Program for USV, Traffic Vessel, Buoys & Shore Station ---
+        // --- D. Cook-Torrance PBR Program for USV, Traffic Vessel, Buoys, Islands & Shore Station ---
         const pbrProg = createProgram(
           `#version 300 es
           layout(location = 0) in vec3 aPos;
@@ -1312,16 +1326,19 @@
           uniform mat4 uModel;
           uniform mat4 uVP;
           out vec3 vWorldPos;
+          out vec3 vLocalPos;
           out vec3 vNormal;
           void main() {
             vec4 wp = uModel * vec4(aPos, 1.0);
             vWorldPos = wp.xyz;
+            vLocalPos = aPos;
             vNormal = normalize(mat3(uModel) * aNormal);
             gl_Position = uVP * wp;
           }`,
           `#version 300 es
           precision highp float;
           in vec3 vWorldPos;
+          in vec3 vLocalPos;
           in vec3 vNormal;
           out vec4 fragColor;
 
@@ -1335,6 +1352,7 @@
           uniform float uRoughness;
           uniform vec3 uEmissive;
           uniform float uTime;
+          uniform int uMatType; // 0=plain, 1=marine hull, 2=solar cells, 3=coastal island, 4=deck plate
 
           void main() {
             vec3 N = normalize(vNormal);
@@ -1342,48 +1360,101 @@
             vec3 L = normalize(uSunDir);
             vec3 H = normalize(V + L);
 
+            vec3 albedo = uAlbedo;
+            float metallic = uMetallic;
+            float roughness = uRoughness;
+
+            if (uMatType == 1) {
+              // Real dual-tone composite marine hull: dark anti-fouling keel + boot stripe + glossy gelcoat
+              float ly = vLocalPos.y;
+              if (ly < -0.02) {
+                albedo = vec3(0.08, 0.11, 0.15);
+                roughness = 0.24;
+              } else if (ly < 0.045) {
+                albedo = vec3(0.88, 0.34, 0.06); // crisp international-orange waterline stripe
+                roughness = 0.20;
+              } else {
+                // Subtle fiberglass panel seam modulation
+                float seam = smoothstep(0.96, 1.0, abs(sin(vLocalPos.z * 3.14)));
+                albedo = mix(uAlbedo, uAlbedo * 0.88, seam * 0.35);
+                roughness = 0.18;
+              }
+            } else if (uMatType == 2) {
+              // Monocrystalline deep-navy photovoltaic solar panel array with silver busbars
+              vec2 cell = fract(vLocalPos.xz * vec2(8.0, 12.0));
+              float border = step(0.93, cell.x) + step(0.93, cell.y) + step(cell.x, 0.04) + step(cell.y, 0.04);
+              float bus = step(0.47, cell.x) * step(cell.x, 0.51);
+              albedo = vec3(0.03, 0.07, 0.18);
+              albedo = mix(albedo, vec3(0.62, 0.72, 0.82), clamp(border * 0.65 + bus * 0.35, 0.0, 1.0));
+              metallic = 0.35;
+              roughness = 0.09;
+            } else if (uMatType == 3) {
+              // Coastal rocky headland transitioning into deep maritime evergreens
+              float h = vWorldPos.y;
+              float rockNoise = sin(vWorldPos.x * 0.35) * cos(vWorldPos.z * 0.32) * 0.5 + 0.5;
+              vec3 wetShore = vec3(0.14, 0.15, 0.16);
+              vec3 coastalRock = mix(vec3(0.24, 0.25, 0.24), vec3(0.34, 0.32, 0.28), rockNoise);
+              vec3 pineForest = mix(vec3(0.07, 0.14, 0.09), vec3(0.12, 0.20, 0.11), rockNoise);
+              float steep = 1.0 - clamp(N.y, 0.0, 1.0);
+              albedo = mix(wetShore, coastalRock, smoothstep(0.2, 2.6, h));
+              albedo = mix(albedo, pineForest, smoothstep(3.2, 8.8, h) * smoothstep(0.55, 0.22, steep));
+              roughness = 0.88;
+              metallic = 0.02;
+            } else if (uMatType == 4) {
+              // Non-skid brushed marine aluminum cross-deck
+              float tread = sin(vLocalPos.x * 38.0) * sin(vLocalPos.z * 38.0) * 0.5 + 0.5;
+              albedo = mix(uAlbedo * 0.88, uAlbedo * 1.06, tread);
+              roughness = 0.36;
+              metallic = 0.72;
+            }
+
+            // Realistic wet splash darkening & gloss near the waterline on vessels
+            if (uMatType != 3 && vWorldPos.y > -0.2 && vWorldPos.y < 0.28) {
+              float wet = 1.0 - smoothstep(-0.02, 0.26, vWorldPos.y);
+              albedo *= mix(1.0, 0.78, wet);
+              roughness = mix(roughness, 0.08, wet * 0.75);
+            }
+
             float NdotL = max(dot(N, L), 0.0);
             float NdotV = max(dot(N, V), 0.001);
             float NdotH = max(dot(N, H), 0.0);
             float HdotV = max(dot(H, V), 0.0);
 
-            vec3 F0 = mix(vec3(0.04), uAlbedo, uMetallic);
+            vec3 F0 = mix(vec3(0.04), albedo, metallic);
             vec3 F = F0 + (1.0 - F0) * pow(1.0 - HdotV, 5.0);
 
-            float a = max(uRoughness * uRoughness, 0.02);
+            float a = max(roughness * roughness, 0.02);
             float a2 = a * a;
             float denom = NdotH * NdotH * (a2 - 1.0) + 1.0;
             float D = a2 / (3.14159265 * denom * denom + 0.0001);
 
-            float k = (uRoughness + 1.0) * (uRoughness + 1.0) / 8.0;
+            float k = (roughness + 1.0) * (roughness + 1.0) / 8.0;
             float gV = NdotV / (NdotV * (1.0 - k) + k);
             float gL = NdotL / (NdotL * (1.0 - k) + k);
             float G = gV * gL;
 
             vec3 spec = (D * G * F) / (4.0 * NdotV * NdotL + 0.001);
-            vec3 kD = (1.0 - F) * (1.0 - uMetallic);
-            vec3 direct = (kD * uAlbedo / 3.14159265 + spec) * uSunCol * NdotL * 2.1;
+            vec3 kD = (1.0 - F) * (1.0 - metallic);
+            vec3 direct = (kD * albedo / 3.14159265 + spec) * uSunCol * NdotL * 2.15;
 
-            // Hemisphere Sky + Ocean Bounce IBL (including subtle turquoise caustic bounce under hull)
+            // Hemisphere Sky + Ocean Caustic Bounce IBL
             float hemi = N.y * 0.5 + 0.5;
-            vec3 waterBounce = vec3(0.04, 0.18, 0.24) * (0.8 + 0.2 * sin(vWorldPos.x * 3.0 + uTime * 3.5) * cos(vWorldPos.z * 3.0 - uTime * 2.8));
-            vec3 skyAmb = mix(waterBounce, mix(uHorizonCol, uZenithCol, 0.55) * 0.62, hemi);
+            vec3 waterBounce = vec3(0.04, 0.19, 0.25) * (0.82 + 0.18 * sin(vWorldPos.x * 3.0 + uTime * 3.5) * cos(vWorldPos.z * 3.0 - uTime * 2.8));
+            vec3 skyAmb = mix(waterBounce, mix(uHorizonCol, uZenithCol, 0.55) * 0.64, hemi);
 
-            // Specular sky environment hint on glossy/metallic surfaces
             vec3 R = reflect(-V, N);
             vec3 envSpec = mix(waterBounce * 1.4, mix(uHorizonCol, uZenithCol, max(R.y, 0.0)), smoothstep(-0.2, 0.35, R.y));
-            vec3 Fenv = F0 + (max(vec3(1.0 - uRoughness), F0) - F0) * pow(1.0 - NdotV, 5.0);
+            vec3 Fenv = F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - NdotV, 5.0);
 
-            vec3 col = direct + kD * uAlbedo * skyAmb * 0.95 + envSpec * Fenv * 0.65 + uEmissive;
+            vec3 col = direct + kD * albedo * skyAmb * 0.96 + envSpec * Fenv * 0.72 + uEmissive;
 
-            // Underwater attenuation if part of vessel is submerged or camera is underwater
             float dist = length(uCamPos - vWorldPos);
             if (uCamPos.y < -0.05 || vWorldPos.y < -0.05) {
               float uwMix = uCamPos.y < -0.05 ? clamp(1.0 - exp(-dist * 0.032), 0.0, 0.88) : clamp(-vWorldPos.y * 0.35, 0.0, 0.55);
               col = mix(col, vec3(0.02, 0.16, 0.24), uwMix);
             } else {
-              float fog = 1.0 - exp(-max(0.0, dist - 65.0) * 0.0055);
-              col = mix(col, uHorizonCol, clamp(fog, 0.0, 0.85));
+              float fog = 1.0 - exp(-max(0.0, dist - 55.0) * 0.0052);
+              col = mix(col, uHorizonCol, clamp(fog, 0.0, 0.90));
             }
 
             col = (col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14);
@@ -1393,7 +1464,7 @@
         );
         const pbrU = getUniforms(pbrProg, [
           "uModel", "uVP", "uCamPos", "uSunDir", "uSunCol", "uZenithCol", "uHorizonCol",
-          "uAlbedo", "uMetallic", "uRoughness", "uEmissive", "uTime"
+          "uAlbedo", "uMetallic", "uRoughness", "uEmissive", "uTime", "uMatType"
         ]);
 
         // --- E. Translucent Additive Volumetric FX & 3D Sensor Overlay Program ---
@@ -1680,10 +1751,52 @@
           return createMeshVAO(pos, norm, idx);
         }
 
+        function buildCoastalIsland(radiusX, radiusZ, peakHeight, seed = 1.0, segs = 36) {
+          // Sculpted coastal volcanic headland / fjord island mesh with smooth normals
+          const pos = [], norm = [], idx = [];
+          const heightAt = (u, v) => {
+            const r = Math.hypot(u, v);
+            if (r >= 1.0) return -2.2;
+            const env = Math.pow(Math.cos(r * PI * 0.5), 1.45);
+            const ridge =
+              0.55 +
+              0.28 * Math.sin(u * 4.2 + seed) * Math.cos(v * 3.8 - seed * 0.7) +
+              0.17 * Math.cos((u * 7.5 - v * 6.2) + seed * 1.9) +
+              0.08 * Math.sin(u * 13.0 + v * 11.0);
+            return -1.8 + (peakHeight + 1.8) * env * clamp(ridge, 0.12, 1.25);
+          };
+
+          for (let iz = 0; iz <= segs; iz++) {
+            const v = (iz / segs) * 2 - 1;
+            for (let ix = 0; ix <= segs; ix++) {
+              const u = (ix / segs) * 2 - 1;
+              const y = heightAt(u, v);
+              const eps = 0.04;
+              const dX = (heightAt(u + eps, v) - heightAt(u - eps, v)) / (2 * eps * radiusX);
+              const dZ = (heightAt(u, v + eps) - heightAt(u, v - eps)) / (2 * eps * radiusZ);
+              const n = v3Norm([-dX, 1.0, -dZ]);
+              pos.push(u * radiusX, y, v * radiusZ);
+              norm.push(n[0], n[1], n[2]);
+            }
+          }
+          const stride = segs + 1;
+          for (let iz = 0; iz < segs; iz++) {
+            for (let ix = 0; ix < segs; ix++) {
+              const a = iz * stride + ix;
+              const b = a + stride;
+              idx.push(a, b, a + 1, a + 1, b, b + 1);
+            }
+          }
+          return createMeshVAO(pos, norm, idx);
+        }
+
         // Build all reusable 3D meshes once
         const meshes = {
           ocean: buildOceanGrid(172, 85, 420),
           seabed: buildSeabedMesh(148, SEABED_EXTENT),
+          islandMain: buildCoastalIsland(74, 38, 26, 1.3, 40),
+          islandEast: buildCoastalIsland(56, 30, 19, 4.2, 34),
+          islandNorth: buildCoastalIsland(68, 34, 24, 7.6, 36),
           usvPontoon: buildLoftedHull(4.35, 0.30, 0.34, 0.30, 26, 16),
           trafficHull: buildLoftedHull(8.2, 1.28, 0.68, 0.85, 24, 16),
           box: buildBox(1, 1, 1),
@@ -2301,6 +2414,15 @@
             } else {
               desiredTarget = [u.x + fx * 3.2, u.y + 0.55, u.z + fz * 3.2];
             }
+          } else if (sim.camMode === "hero") {
+            const ang = sim.time * 0.34 - 0.8;
+            const dist = 8.4;
+            desiredEye = [
+              u.x + Math.sin(ang) * dist,
+              u.y + 2.35 + Math.sin(sim.time * 0.55) * 0.45,
+              u.z + Math.cos(ang) * dist,
+            ];
+            desiredTarget = [u.x, u.y + 0.58, u.z];
           } else if (sim.camMode === "underwater") {
             desiredEye = [
               u.x - fx * 6.4 - rx * 7.8,
@@ -2335,137 +2457,130 @@
         }
 
         // ============================================================
-        // 6. High-Detail PBR 3D Asset Rendering (USV, Traffic, Buoys, Shore)
+        // 6. High-Detail PBR 3D Asset Rendering (USV, Traffic, Buoys, Islands, Shore)
         // ============================================================
-        function drawPart(mesh, parentMat, localMat, albedo, metallic, roughness, emissive = [0, 0, 0]) {
+        function drawPart(mesh, parentMat, localMat, albedo, metallic, roughness, emissive = [0, 0, 0], matType = 0) {
           const model = parentMat ? mat4Mul(parentMat, localMat) : localMat;
           gl.uniformMatrix4fv(pbrU.uModel, false, model);
           gl.uniform3fv(pbrU.uAlbedo, albedo);
           gl.uniform1f(pbrU.uMetallic, metallic);
           gl.uniform1f(pbrU.uRoughness, roughness);
           gl.uniform3fv(pbrU.uEmissive, emissive);
+          gl.uniform1i(pbrU.uMatType, matType);
           gl.bindVertexArray(mesh.vao);
           gl.drawElements(gl.TRIANGLES, mesh.count, mesh.type, 0);
         }
 
         function drawUSV() {
           const M = sim.usv.poseMat;
-          const whiteHull = [0.91, 0.94, 0.96];
+          const whiteHull = [0.92, 0.95, 0.97];
           const orangeSafety = [0.95, 0.36, 0.06];
-          const darkCarbon = [0.10, 0.12, 0.15];
-          const marineAlum = [0.68, 0.74, 0.78];
-          const bronzeProp = [0.76, 0.56, 0.24];
-          const redKeel = [0.62, 0.14, 0.14];
+          const darkCarbon = [0.09, 0.11, 0.14];
+          const marineAlum = [0.72, 0.77, 0.81];
+          const bronzeProp = [0.80, 0.58, 0.25];
+          const redKeel = [0.64, 0.14, 0.14];
 
-          // Twin sleek wave-piercing catamaran pontoons (+X port, -X starboard)
+          // Twin sleek wave-piercing composite catamaran pontoons (matType=1: anti-fouling keel + boot stripe + gelcoat)
           for (const side of [-1, 1]) {
-            const px = side * 0.72;
-            drawPart(meshes.usvPontoon, M, mat4TRS(px, 0.0, 0.0, 0, 0, 0, 1, 1, 1), whiteHull, 0.08, 0.24);
-            // High-visibility safety orange survey stripe along upper hull
-            drawPart(meshes.box, M, mat4TRS(px + side * 0.22, 0.18, -0.15, 0, 0, 0, 0.14, 0.11, 2.75), orangeSafety, 0.05, 0.32);
-            // Heavy-duty black rubber rub-rail along outer chine
-            drawPart(meshes.box, M, mat4TRS(px + side * 0.28, 0.08, -0.18, 0, 0, 0, 0.06, 0.06, 2.9), darkCarbon, 0.05, 0.82);
+            const px = side * 0.74;
+            drawPart(meshes.usvPontoon, M, mat4TRS(px, 0.0, 0.0, 0, 0, 0, 1, 1, 1), whiteHull, 0.08, 0.20, [0, 0, 0], 1);
+            // Sculpted fender rub-rail along outer chine
+            drawPart(meshes.box, M, mat4TRS(px + side * 0.28, 0.13, -0.18, 0, 0, 0, 0.055, 0.055, 2.85), darkCarbon, 0.08, 0.78);
+            // Stainless bow mooring cleats
+            drawPart(meshes.box, M, mat4TRS(px, 0.34, 1.38, 0, 0, 0, 0.07, 0.045, 0.18), marineAlum, 0.92, 0.20);
+            // Orange stern recovery lifting handles
+            drawPart(meshes.cyl, M, mat4TRS(px, 0.36, -1.78, 0, 0, PI * 0.5, 0.032, 0.28, 0.032), orangeSafety, 0.15, 0.35);
 
-            // Stern Ducted Electric Thrusters (2x 500W) + Spinning Propellers
-            drawPart(meshes.cyl, M, mat4TRS(px, -0.26, -1.96, PI * 0.5, 0, 0, 0.28, 0.24, 0.28), darkCarbon, 0.5, 0.4);
-            drawPart(meshes.box, M, mat4TRS(px, -0.12, -1.92, 0, 0, 0, 0.05, 0.28, 0.16), marineAlum, 0.7, 0.35);
+            // Stern Ducted Electric Thrusters (2x 500W) + Spinner Cone + 3-Blade Propellers
+            drawPart(meshes.cyl, M, mat4TRS(px, -0.26, -1.96, PI * 0.5, 0, 0, 0.30, 0.26, 0.30), darkCarbon, 0.55, 0.36);
+            drawPart(meshes.cone, M, mat4TRS(px, -0.26, -2.06, -PI * 0.5, 0, 0, 0.10, 0.16, 0.10), bronzeProp, 0.88, 0.24);
+            drawPart(meshes.box, M, mat4TRS(px, -0.12, -1.92, 0, 0, 0, 0.05, 0.28, 0.18), marineAlum, 0.78, 0.32);
             const pPhase = side > 0 ? sim.usv.propPhaseL : sim.usv.propPhaseR;
             for (let b = 0; b < 3; b++) {
               const ang = pPhase + (b * TAU) / 3;
-              drawPart(
-                meshes.box,
-                M,
-                mat4TRS(px, -0.26, -2.02, 0, 0, ang, 0.22, 0.045, 0.025),
-                bronzeProp,
-                0.85,
-                0.28
-              );
+              drawPart(meshes.box, M, mat4TRS(px, -0.26, -2.03, 0, 0, ang, 0.23, 0.048, 0.024), bronzeProp, 0.88, 0.24);
             }
 
             // Stainless Safety Grab Rails along bridge deck
-            drawPart(meshes.cyl, M, mat4TRS(px * 0.92, 0.47, -0.15, PI * 0.5, 0, 0, 0.032, 2.15, 0.032), marineAlum, 0.92, 0.22);
-            for (const rz of [-1.15, 0.0, 0.85]) {
-              drawPart(meshes.cyl, M, mat4TRS(px * 0.92, 0.37, rz, 0, 0, 0, 0.03, 0.22, 0.03), marineAlum, 0.92, 0.22);
+            drawPart(meshes.cyl, M, mat4TRS(px * 0.91, 0.49, -0.14, PI * 0.5, 0, 0, 0.030, 2.20, 0.030), marineAlum, 0.94, 0.18);
+            for (const rz of [-1.18, -0.15, 0.88]) {
+              drawPart(meshes.cyl, M, mat4TRS(px * 0.91, 0.38, rz, 0, 0, 0, 0.028, 0.23, 0.028), marineAlum, 0.94, 0.18);
             }
           }
 
-          // Cross-deck Structural Aluminum / Carbon Bridge Platform
-          drawPart(meshes.box, M, mat4TRS(0, 0.26, -0.18, 0, 0, 0, 1.38, 0.11, 2.38), marineAlum, 0.65, 0.38);
-          // Main Weatherproof Autonomy Compute & 48V 10kWh Battery Bay
-          drawPart(meshes.box, M, mat4TRS(0, 0.44, -0.22, 0, 0, 0, 0.96, 0.30, 1.72), whiteHull, 0.1, 0.28);
-          drawPart(meshes.box, M, mat4TRS(0, 0.60, -0.22, 0, 0, 0, 0.86, 0.05, 1.56), orangeSafety, 0.08, 0.32);
-          // CUDA Heat-Sink Cooling Fins on aft deck
+          // Cross-deck Non-Skid Brushed Aluminum Platform (matType=4) + Underwater Hydrofoil Cross-Strut
+          drawPart(meshes.box, M, mat4TRS(0, 0.26, -0.16, 0, 0, 0, 1.44, 0.10, 2.42), marineAlum, 0.72, 0.36, [0, 0, 0], 4);
+          drawPart(meshes.box, M, mat4TRS(0, -0.20, 0.34, 0, 0, 0, 1.36, 0.045, 0.24), darkCarbon, 0.45, 0.38);
+
+          // Sculpted Autonomy Compute & 48V 10kWh Battery Pod + Sloped Aerodynamic Nose Cowling
+          drawPart(meshes.box, M, mat4TRS(0, 0.44, -0.26, 0, 0, 0, 1.00, 0.30, 1.66), whiteHull, 0.08, 0.24);
+          // Sloped forward nose fairing
+          drawPart(meshes.box, M, mat4TRS(0, 0.40, 0.72, 0.42, 0, 0, 0.96, 0.22, 0.42), whiteHull, 0.08, 0.22);
+          // High-visibility safety orange deck trim bezel
+          drawPart(meshes.box, M, mat4TRS(0, 0.60, -0.26, 0, 0, 0, 0.96, 0.045, 1.60), orangeSafety, 0.08, 0.30);
+          // Monocrystalline Photovoltaic Solar Array on top deck (matType=2)
+          drawPart(meshes.box, M, mat4TRS(0, 0.63, -0.26, 0, 0, 0, 0.86, 0.022, 1.46), [0.04, 0.08, 0.20], 0.35, 0.09, [0, 0, 0], 2);
+
+          // Glowing Side Telemetry Status Strip (Cyan=OK, Amber=Warn, Red=Critical)
+          const stripCol =
+            sim.severity === "CRITICAL" ? [3.2, 0.2, 0.2] :
+            sim.severity === "WARNING" || sim.severity === "ERROR" ? [2.8, 1.5, 0.15] : [0.15, 2.0, 2.4];
+          for (const side of [-1, 1]) {
+            drawPart(meshes.box, M, mat4TRS(side * 0.505, 0.48, -0.26, 0, 0, 0, 0.018, 0.032, 1.35), [0.8, 0.95, 1.0], 0, 0.15, stripCol);
+          }
+
+          // CUDA Heat-Sink Cooling Fins on aft transom
           for (let i = -3; i <= 3; i++) {
-            drawPart(meshes.box, M, mat4TRS(i * 0.11, 0.52, -1.12, 0, 0, 0, 0.025, 0.14, 0.22), darkCarbon, 0.85, 0.32);
+            drawPart(meshes.box, M, mat4TRS(i * 0.115, 0.50, -1.12, 0, 0, 0, 0.025, 0.16, 0.22), darkCarbon, 0.88, 0.28);
           }
 
           // Keel-Mounted Submerged Hydrographic Sensor Pod (MBES + DVL)
-          drawPart(meshes.box, M, mat4TRS(0, -0.10, 0.32, 0, 0, 0, 0.10, 0.62, 0.32), darkCarbon, 0.5, 0.45);
-          // MBES 512-beam sonar array (distinctive red/black acoustic fairing per URDF)
-          drawPart(meshes.cyl, M, mat4TRS(0, -0.42, 0.48, 0, 0, PI * 0.5, 0.22, 0.56, 0.22), redKeel, 0.2, 0.35);
-          // DVL 4-beam acoustic velocity pod
-          drawPart(meshes.cyl, M, mat4TRS(0, -0.44, -0.05, 0, 0, 0, 0.24, 0.18, 0.24), darkCarbon, 0.4, 0.4);
+          drawPart(meshes.box, M, mat4TRS(0, -0.10, 0.34, 0, 0, 0, 0.11, 0.64, 0.34), darkCarbon, 0.5, 0.42);
+          drawPart(meshes.cyl, M, mat4TRS(0, -0.44, 0.48, 0, 0, PI * 0.5, 0.22, 0.58, 0.22), redKeel, 0.2, 0.32);
+          drawPart(meshes.cyl, M, mat4TRS(0, -0.46, -0.05, 0, 0, 0, 0.24, 0.18, 0.24), darkCarbon, 0.4, 0.38);
 
-          // Aerodynamic Carbon Sensor Arch / Mast
+          // Aerodynamic Swept Carbon Sensor Arch / Mast
           for (const side of [-1, 1]) {
-            drawPart(meshes.box, M, mat4TRS(side * 0.54, 0.95, -0.15, -0.18, 0, side * 0.14, 0.07, 0.88, 0.12), darkCarbon, 0.35, 0.42);
+            drawPart(meshes.box, M, mat4TRS(side * 0.55, 0.96, -0.18, -0.18, 0, side * 0.13, 0.075, 0.90, 0.13), darkCarbon, 0.38, 0.36);
           }
-          drawPart(meshes.box, M, mat4TRS(0, 1.38, -0.22, 0, 0, 0, 1.06, 0.08, 0.22), darkCarbon, 0.35, 0.42);
+          drawPart(meshes.box, M, mat4TRS(0, 1.40, -0.25, 0, 0, 0, 1.10, 0.08, 0.24), darkCarbon, 0.38, 0.36);
 
           // Spinning 3D LiDAR Dome (Amber Laser Band)
-          drawPart(meshes.cyl, M, mat4TRS(0, 1.50, -0.18, 0, sim.lidarAngle, 0, 0.16, 0.14, 0.16), darkCarbon, 0.6, 0.25);
-          drawPart(
-            meshes.cyl,
-            M,
-            mat4TRS(0, 1.50, -0.18, 0, sim.lidarAngle, 0, 0.168, 0.04, 0.168),
-            [0.95, 0.55, 0.1],
-            0.2,
-            0.2,
-            [1.6, 0.78, 0.12]
-          );
+          drawPart(meshes.cyl, M, mat4TRS(0, 1.52, -0.20, 0, sim.lidarAngle, 0, 0.17, 0.14, 0.17), darkCarbon, 0.65, 0.22);
+          drawPart(meshes.cyl, M, mat4TRS(0, 1.52, -0.20, 0, sim.lidarAngle, 0, 0.178, 0.042, 0.178), [0.95, 0.55, 0.1], 0.2, 0.18, [1.8, 0.85, 0.12]);
 
           // Spinning Marine X-Band Radar Bar
-          drawPart(meshes.cyl, M, mat4TRS(0, 1.63, -0.22, 0, 0, 0, 0.10, 0.14, 0.10), whiteHull, 0.1, 0.3);
-          drawPart(meshes.box, M, mat4TRS(0, 1.72, -0.22, 0, sim.radarAngle, 0, 0.68, 0.06, 0.09), whiteHull, 0.1, 0.25);
+          drawPart(meshes.cyl, M, mat4TRS(0, 1.65, -0.24, 0, 0, 0, 0.10, 0.14, 0.10), whiteHull, 0.1, 0.26);
+          drawPart(meshes.box, M, mat4TRS(0, 1.74, -0.24, 0, sim.radarAngle, 0, 0.72, 0.06, 0.095), whiteHull, 0.1, 0.22);
 
           // Gimbaled Forward Optical / Thermal Camera (YOLOv8)
-          drawPart(meshes.sphere, M, mat4TRS(0, 0.86, 0.82, 0, 0, 0, 0.24, 0.24, 0.24), darkCarbon, 0.5, 0.22);
-          drawPart(
-            meshes.cyl,
-            M,
-            mat4TRS(0, 0.86, 0.93, PI * 0.5, 0, 0, 0.09, 0.06, 0.09),
-            [0.05, 0.15, 0.25],
-            0.8,
-            0.1,
-            [0.15, 0.75, 0.95]
-          );
-          drawPart(meshes.cyl, M, mat4TRS(0, 0.68, 0.78, 0, 0, 0, 0.08, 0.22, 0.08), marineAlum, 0.8, 0.3);
+          drawPart(meshes.sphere, M, mat4TRS(0, 0.84, 0.86, 0, 0, 0, 0.25, 0.25, 0.25), darkCarbon, 0.55, 0.18);
+          drawPart(meshes.cyl, M, mat4TRS(0, 0.84, 0.98, PI * 0.5, 0, 0, 0.095, 0.06, 0.095), [0.05, 0.15, 0.25], 0.85, 0.08, [0.18, 0.82, 1.05]);
+          drawPart(meshes.cyl, M, mat4TRS(0, 0.66, 0.82, 0, 0, 0, 0.08, 0.24, 0.08), marineAlum, 0.85, 0.26);
 
-          // Dual GPS-RTK Mushroom Antennas (Port & Starboard Arch)
+          // Dual GPS-RTK Mushroom Antennas
           for (const side of [-1, 1]) {
-            drawPart(meshes.cyl, M, mat4TRS(side * 0.46, 1.48, -0.22, 0, 0, 0, 0.03, 0.14, 0.03), marineAlum, 0.8, 0.3);
-            drawPart(meshes.cyl, M, mat4TRS(side * 0.46, 1.57, -0.22, 0, 0, 0, 0.16, 0.07, 0.16), whiteHull, 0.08, 0.28);
+            drawPart(meshes.cyl, M, mat4TRS(side * 0.48, 1.50, -0.24, 0, 0, 0, 0.03, 0.14, 0.03), marineAlum, 0.85, 0.26);
+            drawPart(meshes.cyl, M, mat4TRS(side * 0.48, 1.59, -0.24, 0, 0, 0, 0.16, 0.075, 0.16), whiteHull, 0.08, 0.24);
           }
 
           // Radio (15-20km) & 4G/LTE Whip Antennas
-          drawPart(meshes.cyl, M, mat4TRS(0.32, 1.88, -0.28, 0, 0, 0, 0.022, 0.95, 0.022), darkCarbon, 0.3, 0.45);
-          drawPart(meshes.cyl, M, mat4TRS(-0.32, 1.76, -0.28, 0, 0, 0, 0.020, 0.68, 0.020), darkCarbon, 0.3, 0.45);
+          drawPart(meshes.cyl, M, mat4TRS(0.32, 1.90, -0.30, 0, 0, 0, 0.022, 0.98, 0.022), darkCarbon, 0.3, 0.45);
+          drawPart(meshes.cyl, M, mat4TRS(-0.32, 1.78, -0.30, 0, 0, 0, 0.020, 0.70, 0.020), darkCarbon, 0.3, 0.45);
 
-          // COLREGs Navigation Lights & Emergency Strobe Beacon
-          // Port = RED (+X), Starboard = GREEN (-X), Stern = WHITE (-Z)
-          drawPart(meshes.sphere, M, mat4TRS(0.56, 1.38, -0.10, 0, 0, 0, 0.085, 0.085, 0.085), [1, 0.2, 0.2], 0, 0.2, [3.2, 0.25, 0.2]);
-          drawPart(meshes.sphere, M, mat4TRS(-0.56, 1.38, -0.10, 0, 0, 0, 0.085, 0.085, 0.085), [0.1, 1, 0.4], 0, 0.2, [0.15, 3.0, 0.8]);
+          // COLREGs Navigation Lights & Masthead Strobe
+          drawPart(meshes.sphere, M, mat4TRS(0.58, 1.40, -0.12, 0, 0, 0, 0.085, 0.085, 0.085), [1, 0.2, 0.2], 0, 0.2, [3.2, 0.25, 0.2]);
+          drawPart(meshes.sphere, M, mat4TRS(-0.58, 1.40, -0.12, 0, 0, 0, 0.085, 0.085, 0.085), [0.1, 1, 0.4], 0, 0.2, [0.15, 3.0, 0.8]);
           drawPart(meshes.sphere, M, mat4TRS(0, 0.68, -1.25, 0, 0, 0, 0.075, 0.075, 0.075), [1, 1, 0.95], 0, 0.2, [2.2, 2.2, 1.9]);
 
-          // Masthead Status / Emergency Strobe
           const strobeFlash = Math.sin(sim.time * (sim.severity === "CRITICAL" ? 16.0 : 5.5)) > 0.0;
           const beaconEmissive =
             sim.severity === "CRITICAL"
-              ? strobeFlash ? [4.5, 0.25, 0.2] : [0.5, 0.05, 0.05]
+              ? strobeFlash ? [4.8, 0.25, 0.2] : [0.5, 0.05, 0.05]
               : sim.severity === "WARNING" || sim.severity === "ERROR"
                 ? strobeFlash ? [3.6, 2.1, 0.2] : [0.4, 0.2, 0.05]
-                : [0.25, 2.2, 1.6];
-          drawPart(meshes.sphere, M, mat4TRS(0, 1.82, -0.22, 0, 0, 0, 0.095, 0.095, 0.095), [1, 1, 1], 0, 0.15, beaconEmissive);
+                : [0.25, 2.4, 1.8];
+          drawPart(meshes.sphere, M, mat4TRS(0, 1.84, -0.24, 0, 0, 0, 0.095, 0.095, 0.095), [1, 1, 1], 0, 0.15, beaconEmissive);
 
           // Deployed Emergency Anchor & Chain (Diagram 8: E-Stop)
           if (sim.usv.anchorDepth > 0.1) {
@@ -2478,13 +2593,18 @@
 
         function drawTrafficVessel() {
           const M = sim.traffic.poseMat;
-          drawPart(meshes.trafficHull, M, mat4TRS(0, 0, 0, 0, 0, 0, 1, 1, 1), [0.92, 0.94, 0.96], 0.06, 0.28);
-          // Navy hull accent band
-          drawPart(meshes.box, M, mat4TRS(0, 0.36, -0.35, 0, 0, 0, 2.48, 0.24, 5.2), [0.09, 0.20, 0.36], 0.1, 0.35);
-          // Wheelhouse cabin
-          drawPart(meshes.box, M, mat4TRS(0, 1.38, -0.65, 0, 0, 0, 1.82, 1.15, 2.75), [0.95, 0.96, 0.97], 0.05, 0.26);
-          // Tinted wrap-around bridge windshield
-          drawPart(meshes.box, M, mat4TRS(0, 1.56, 0.74, -0.22, 0, 0, 1.72, 0.52, 0.08), [0.05, 0.12, 0.18], 0.85, 0.08);
+          // Dual-tone marine hull (matType=1)
+          drawPart(meshes.trafficHull, M, mat4TRS(0, 0, 0, 0, 0, 0, 1, 1, 1), [0.92, 0.95, 0.97], 0.06, 0.22, [0, 0, 0], 1);
+          // Deep maritime navy hull stripe
+          drawPart(meshes.box, M, mat4TRS(0, 0.42, -0.35, 0, 0, 0, 2.50, 0.22, 5.2), [0.08, 0.18, 0.34], 0.12, 0.30);
+          // Wheelhouse cabin + warm backlit bridge windows
+          drawPart(meshes.box, M, mat4TRS(0, 1.38, -0.65, 0, 0, 0, 1.82, 1.15, 2.75), [0.95, 0.96, 0.97], 0.05, 0.24);
+          const winGlow = sim.lightIndex === 2 ? [1.2, 0.88, 0.42] : [0.18, 0.22, 0.24];
+          drawPart(meshes.box, M, mat4TRS(0, 1.56, 0.74, -0.22, 0, 0, 1.72, 0.52, 0.08), [0.06, 0.13, 0.18], 0.85, 0.08, winGlow);
+          drawPart(meshes.box, M, mat4TRS(0, 1.56, -0.45, 0, 0, 0, 1.86, 0.44, 1.65), [0.06, 0.13, 0.18], 0.85, 0.08, winGlow);
+          // Orange life-ring buoy on cabin side + bow pulpit rail
+          drawPart(meshes.cyl, M, mat4TRS(0.93, 1.24, -1.35, 0, 0, PI * 0.5, 0.46, 0.08, 0.46), [0.95, 0.32, 0.08], 0.05, 0.4);
+          drawPart(meshes.cyl, M, mat4TRS(0, 1.08, 2.85, 0, 0, PI * 0.5, 0.04, 1.65, 0.04), [0.85, 0.88, 0.90], 0.9, 0.22);
           // Cabin roof radar mast
           drawPart(meshes.cyl, M, mat4TRS(0, 2.25, -0.75, 0, 0, 0, 0.09, 0.65, 0.09), [0.85, 0.88, 0.90], 0.7, 0.3);
           drawPart(meshes.box, M, mat4TRS(0, 2.58, -0.75, 0, sim.radarAngle * 0.7, 0, 0.95, 0.08, 0.12), [0.95, 0.96, 0.97], 0.1, 0.3);
@@ -2494,6 +2614,12 @@
         }
 
         function drawBuoysAndShoreStation() {
+          // Distant Atmospheric Coastal Mountain Islands framing the survey bay (matType=3)
+          drawPart(meshes.islandMain, null, mat4TRS(-24, -0.4, -108, 0, 0.15, 0, 1.25, 1.15, 1.0), [0.22, 0.26, 0.22], 0.02, 0.9, [0, 0, 0], 3);
+          drawPart(meshes.islandEast, null, mat4TRS(88, -0.4, -84, 0, -0.42, 0, 1.1, 1.0, 1.1), [0.22, 0.26, 0.22], 0.02, 0.9, [0, 0, 0], 3);
+          drawPart(meshes.islandNorth, null, mat4TRS(-76, -0.4, 118, 0, 0.55, 0, 1.35, 1.2, 1.0), [0.22, 0.26, 0.22], 0.02, 0.9, [0, 0, 0], 3);
+          drawPart(meshes.islandEast, null, mat4TRS(96, -0.4, 112, 0, -0.25, 0, 1.2, 1.05, 1.1), [0.22, 0.26, 0.22], 0.02, 0.9, [0, 0, 0], 3);
+
           // 4 Floating Geofence Corner Navigation Buoys
           const corners = [
             [GEOFENCE.minX, GEOFENCE.minZ, [0.88, 0.18, 0.16], [2.2, 0.25, 0.2]],
@@ -2514,11 +2640,11 @@
           // Shore Operator Station & Telemetry Tower (at SHORE_STATION)
           const [sx, sz] = SHORE_STATION;
           const sm = mat4TRS(sx, 0, sz, 0, 0, 0, 1, 1, 1);
-          // Concrete/rock pier base rising above water
-          drawPart(meshes.box, sm, mat4TRS(0, 0.2, 0, 0, 0, 0, 12.0, 4.4, 8.5), [0.36, 0.39, 0.42], 0.05, 0.85);
-          // Operator Control Container Cabin
-          drawPart(meshes.box, sm, mat4TRS(-2.0, 3.6, -0.5, 0, 0, 0, 5.2, 2.6, 3.4), [0.88, 0.91, 0.94], 0.15, 0.42);
-          drawPart(meshes.box, sm, mat4TRS(-2.0, 3.8, 1.23, 0, 0, 0, 3.6, 1.0, 0.08), [0.06, 0.18, 0.28], 0.8, 0.12, [0.15, 0.55, 0.75]);
+          drawPart(meshes.box, sm, mat4TRS(0, 0.2, 0, 0, 0, 0, 12.6, 4.4, 8.8), [0.36, 0.39, 0.42], 0.05, 0.85);
+          drawPart(meshes.box, sm, mat4TRS(-2.0, 3.6, -0.5, 0, 0, 0, 5.4, 2.7, 3.5), [0.88, 0.91, 0.94], 0.15, 0.38);
+          drawPart(meshes.box, sm, mat4TRS(-2.0, 3.8, 1.28, 0, 0, 0, 3.6, 1.0, 0.08), [0.06, 0.18, 0.28], 0.8, 0.12, [0.22, 0.72, 0.92]);
+          // White coastal satcom radome on control roof
+          drawPart(meshes.sphere, sm, mat4TRS(-3.4, 5.55, -0.6, 0, 0, 0, 1.45, 1.45, 1.45), [0.95, 0.96, 0.98], 0.05, 0.28);
           // High-Gain 15-20km Radio Telemetry Mast
           drawPart(meshes.cyl, sm, mat4TRS(3.2, 6.4, 0.5, 0, 0, 0, 0.28, 8.6, 0.28), [0.74, 0.78, 0.82], 0.75, 0.35);
           drawPart(meshes.sphere, sm, mat4TRS(3.2, 10.8, 0.5, 0, 0, 0, 0.42, 0.42, 0.42), [1, 1, 1], 0, 0.1, [0.3, 2.4, 3.0]);
@@ -2706,7 +2832,35 @@
             }
           }
 
-          // 5) Sea Spray & Thruster Bubble Particles
+          // 5) Sea Spray, Thruster Bubbles & Underwater Volumetric Sun Shafts + Marine Snow
+          if (sim.camEye[1] < -0.1) {
+            const sun = LIGHT_PRESETS[sim.lightIndex].sunDir;
+            for (let i = 0; i < 10; i++) {
+              const ang = i * 0.628 + Math.sin(sim.time * 0.25 + i) * 0.12;
+              const rad = 5.5 + (i % 3) * 4.5;
+              const topX = u.x + Math.cos(ang) * rad;
+              const topZ = u.z + Math.sin(ang) * rad;
+              const shaftLen = 13.5;
+              const botX = topX - sun[0] * shaftLen * 0.45;
+              const botZ = topZ - sun[2] * shaftLen * 0.45;
+              const wTop = 0.75;
+              const wBot = 2.6;
+              const shimmer = 0.045 + 0.035 * Math.sin(sim.time * 1.4 + i * 2.1);
+              pushV(triVerts, topX - wTop, -0.05, topZ, 0.35, 0.88, 0.92, shimmer);
+              pushV(triVerts, topX + wTop, -0.05, topZ, 0.35, 0.88, 0.92, shimmer);
+              pushV(triVerts, botX + wBot, -shaftLen, botZ, 0.12, 0.55, 0.72, 0.0);
+              pushV(triVerts, topX - wTop, -0.05, topZ, 0.35, 0.88, 0.92, shimmer);
+              pushV(triVerts, botX + wBot, -shaftLen, botZ, 0.12, 0.55, 0.72, 0.0);
+              pushV(triVerts, botX - wBot, -shaftLen, botZ, 0.12, 0.55, 0.72, 0.0);
+            }
+            for (let i = 0; i < 42; i++) {
+              const mx = u.x + Math.sin(i * 12.9898 + sim.time * 0.12) * 14.0;
+              const mz = u.z + Math.cos(i * 78.233 - sim.time * 0.10) * 14.0;
+              const my = -0.8 - ((i * 0.31 + sim.time * 0.08) % 10.5);
+              pushV(ptVerts, mx, my, mz, 0.72, 0.96, 1.0, 0.28);
+            }
+          }
+
           for (const p of sim.particles) {
             const fade = 1.0 - p.age / p.life;
             if (p.type === 0) {
@@ -3136,7 +3290,18 @@
         const telemetryDrawer = document.getElementById("telemetry-drawer");
         const btnTelToggle = document.getElementById("btn-telemetry-toggle");
         // Auto-collapse telemetry drawer on narrow mobile screens so 3D view stays unobstructed
-        if (window.innerWidth < 760) {
+        const isEmbedded = new URLSearchParams(window.location.search).get("embed") === "1";
+        if (isEmbedded) {
+          const navBtn = document.getElementById("nav-back-btn");
+          if (navBtn) {
+            navBtn.href = "simulation.html";
+            navBtn.target = "_blank";
+            navBtn.rel = "noopener noreferrer";
+            navBtn.textContent = "Fullscreen ↗";
+            navBtn.title = "Open full-viewport 3D simulation";
+          }
+        }
+        if (window.innerWidth < 760 || isEmbedded) {
           telemetryDrawer.classList.add("hidden");
           btnTelToggle.classList.remove("is-active");
         }

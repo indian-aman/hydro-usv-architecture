@@ -148,6 +148,17 @@
 
         <nav class="rail__nav" aria-label="Architecture chapters">
           <div class="rail__label">
+            <span>Interactive</span>
+          </div>
+          <ol class="chapter-list" style="margin-bottom: 12px;">
+            <li>
+              <a class="chapter-link" href="#live-3d-simulation">
+                <span class="chapter-link__num">3D</span>
+                <span>Live Ocean Simulation</span>
+              </a>
+            </li>
+          </ol>
+          <div class="rail__label">
             <span>Diagrams</span>
             <span id="filter-status"></span>
           </div>
@@ -253,6 +264,42 @@
             </div>
           </div>
         </header>
+
+        <section class="plate plate--sim" id="live-3d-simulation" aria-label="Live 3D Ocean Simulation">
+          <header class="plate__head">
+            <div class="plate__title-group">
+              <div class="plate__heading-row">
+                <span class="plate__index">3D</span>
+                <h2 class="plate__title">Live Ocean Autonomy Simulation</h2>
+              </div>
+              <p class="plate__meta">
+                <span>WebGL2 GLSL</span>
+                <span>·</span>
+                <span>Gerstner Waves + 6-DOF Catamaran</span>
+                <span>·</span>
+                <span>All 8 Subsystems Interactive</span>
+              </p>
+            </div>
+            <div class="plate__actions">
+              <a class="btn btn--primary" href="simulation.html" target="_blank" rel="noopener noreferrer">
+                Fullscreen 3D ↗
+              </a>
+            </div>
+          </header>
+          <div class="sim-embed-wrap">
+            <iframe
+              class="sim-embed-frame"
+              src="simulation.html?embed=1"
+              title="Autonomous Hydrographic Survey USV Live 3D Ocean Simulation"
+              loading="eager"
+              allow="fullscreen"
+            ></iframe>
+          </div>
+          <div class="plate__foot">
+            <span>Drag to orbit 360° · Scroll to zoom · Switch missions &amp; cameras (including Underwater Sonar)</span>
+            <span>Real-time WebGL2 twin</span>
+          </div>
+        </section>
 
         <section class="empty-state" id="empty-state" hidden>
           <h2 class="empty-state__title">No matching diagrams</h2>
