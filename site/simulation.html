@@ -1,0 +1,3180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Autonomous Hydrographic Survey USV — Real-Time 3D Maritime Simulation</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2322d3ee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 16c2.2-1.8 4.4-1.8 6.6 0s4.4 1.8 6.6 0c1.4-1.1 2.8-1.6 4.8-1.1'/%3E%3Cpath d='M4 11l8-6 8 6'/%3E%3Ccircle cx='12' cy='10.5' r='1.7' fill='%2322d3ee'/%3E%3C/svg%3E" />
+    <style>
+      /* Zero-dependency layout utilities for GitHub Pages standalone deployment */
+      .hidden { display: none !important; }
+      .fixed { position: fixed; }
+      .inset-0 { inset: 0; }
+      .top-3 { top: 12px; }
+      .top-14 { top: 56px; }
+      .left-3 { left: 12px; }
+      .right-3 { right: 12px; }
+      .bottom-3 { bottom: 12px; }
+      .z-20 { z-index: 20; }
+      .z-30 { z-index: 30; }
+      .z-50 { z-index: 50; }
+      .flex { display: flex; }
+      .grid { display: grid; }
+      .inline-block { display: inline-block; }
+      .flex-col { flex-direction: column; }
+      .flex-wrap { flex-wrap: wrap; }
+      .items-center { align-items: center; }
+      .justify-between { justify-content: space-between; }
+      .justify-center { justify-content: center; }
+      .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .gap-1 { gap: 4px; }
+      .gap-1\.5 { gap: 6px; }
+      .gap-2 { gap: 8px; }
+      .gap-3 { gap: 12px; }
+      .gap-x-2\.5 { column-gap: 10px; }
+      .gap-y-1\.5 { row-gap: 6px; }
+      .space-y-1 > * + * { margin-top: 4px; }
+      .space-y-1\.5 > * + * { margin-top: 6px; }
+      .space-y-2 > * + * { margin-top: 8px; }
+      .space-y-3 > * + * { margin-top: 12px; }
+      .m-0 { margin: 0; }
+      .mt-0\.5 { margin-top: 2px; }
+      .mt-2 { margin-top: 8px; }
+      .mr-0\.5 { margin-right: 2px; }
+      .ml-auto { margin-left: auto; }
+      .p-3 { padding: 12px; }
+      .p-6 { padding: 24px; }
+      .px-2 { padding-left: 8px; padding-right: 8px; }
+      .px-2\.5 { padding-left: 10px; padding-right: 10px; }
+      .px-3\.5 { padding-left: 14px; padding-right: 14px; }
+      .py-1 { padding-top: 4px; padding-bottom: 4px; }
+      .py-2 { padding-top: 8px; padding-bottom: 8px; }
+      .py-2\.5 { padding-top: 10px; padding-bottom: 10px; }
+      .pt-0\.5 { padding-top: 2px; }
+      .pt-2 { padding-top: 8px; }
+      .pl-0\.5 { padding-left: 2px; }
+      .w-2\.5 { width: 10px; }
+      .h-2\.5 { height: 10px; }
+      .h-2 { height: 8px; }
+      .h-5 { height: 20px; }
+      .w-px { width: 1px; }
+      .w-14 { width: 56px; }
+      .w-full { width: 100%; }
+      .h-full { height: 100%; }
+      .w-\[276px\] { width: 276px; }
+      .min-w-0 { min-width: 0; }
+      .shrink-0 { flex-shrink: 0; }
+      .max-w-md { max-width: 28rem; }
+      .max-w-\[1260px\] { max-width: 1260px; }
+      .max-w-\[min\(430px\,calc\(100vw-24px\)\)\] { max-width: min(430px, calc(100vw - 24px)); }
+      .max-h-\[calc\(100vh-156px\)\] { max-height: calc(100vh - 156px); }
+      .overflow-hidden { overflow: hidden; }
+      .overflow-y-auto { overflow-y: auto; }
+      .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .rounded { border-radius: 5px; }
+      .rounded-md { border-radius: 6px; }
+      .rounded-xl { border-radius: 12px; }
+      .rounded-full { border-radius: 9999px; }
+      .border { border-width: 1px; border-style: solid; }
+      .border-t { border-top-width: 1px; border-top-style: solid; }
+      .border-cyan-300\/40 { border-color: rgba(103, 232, 249, 0.4); }
+      .border-sky-300\/15 { border-color: rgba(125, 211, 252, 0.15); }
+      .border-sky-400\/15 { border-color: rgba(56, 189, 248, 0.15); }
+      .border-sky-400\/20 { border-color: rgba(56, 189, 248, 0.2); }
+      .bg-cyan-500\/20 { background-color: rgba(6, 182, 212, 0.2); }
+      .bg-slate-800\/90 { background-color: rgba(30, 41, 59, 0.9); }
+      .bg-slate-900\/60 { background-color: rgba(15, 23, 42, 0.6); }
+      .bg-slate-950 { background-color: #020617; }
+      .bg-sky-300\/20 { background-color: rgba(125, 211, 252, 0.2); }
+      .bg-emerald-400 { background-color: #34d399; }
+      .bg-yellow-300 { background-color: #fde047; }
+      .bg-amber-400 { background-color: #fbbf24; }
+      .bg-rose-500 { background-color: #f43f5e; }
+      .bg-gradient-to-r.from-cyan-400.to-emerald-400 { background: linear-gradient(90deg, #22d3ee, #34d399); }
+      .text-white { color: #ffffff; }
+      .text-slate-300 { color: #cbd5e1; }
+      .text-cyan-100 { color: #cffafe; }
+      .text-cyan-300 { color: #67e8f9; }
+      .text-emerald-300 { color: #6ee7b7; }
+      .text-yellow-200 { color: #fef08a; }
+      .text-amber-200 { color: #fde68a; }
+      .text-amber-300 { color: #fcd34d; }
+      .text-rose-400 { color: #fb7185; }
+      .text-sky-100\/85 { color: rgba(224, 242, 254, 0.85); }
+      .text-sky-100\/90 { color: rgba(224, 242, 254, 0.9); }
+      .text-sky-200\/60 { color: rgba(186, 230, 253, 0.6); }
+      .text-sky-200\/80 { color: rgba(186, 230, 253, 0.8); }
+      .text-sky-300\/80 { color: rgba(125, 211, 252, 0.8); }
+      .text-\[10px\] { font-size: 10px; }
+      .text-\[11px\] { font-size: 11px; }
+      .text-xs { font-size: 12px; }
+      .text-sm { font-size: 14px; }
+      .text-lg { font-size: 18px; }
+      .font-medium { font-weight: 500; }
+      .font-semibold { font-weight: 600; }
+      .uppercase { text-transform: uppercase; }
+      .tracking-tight { letter-spacing: -0.02em; }
+      .tracking-wider { letter-spacing: 0.06em; }
+      .text-center { text-align: center; }
+      .cursor-pointer { cursor: pointer; }
+      .pointer-events-none { pointer-events: none; }
+      .pointer-events-auto { pointer-events: auto; }
+      .transition-all { transition: all 300ms ease; }
+      .duration-300 { transition-duration: 300ms; }
+      .accent-cyan-400 { accent-color: #22d3ee; }
+      .accent-amber-400 { accent-color: #fbbf24; }
+      .accent-emerald-400 { accent-color: #34d399; }
+      .accent-sky-400 { accent-color: #38bdf8; }
+      @keyframes pulse { 50% { opacity: 0.45; } }
+      .animate-pulse { animation: pulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+      @media (min-width: 768px) { .md\:inline-block { display: inline-block !important; } }
+      @media (min-width: 1024px) { .lg\:inline-block { display: inline-block !important; } }
+      @media (min-width: 1280px) { .xl\:inline { display: inline !important; } }
+      a.hud-btn { text-decoration: none; display: inline-flex; align-items: center; }
+    </style>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #06131f;
+        color: #e6f2fa;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        user-select: none;
+      }
+
+      #gl-canvas {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: grab;
+        touch-action: none;
+      }
+
+      #gl-canvas:active {
+        cursor: grabbing;
+      }
+
+      /* Translucent Maritime Glass HUD */
+      .hud-panel {
+        background: rgba(7, 20, 33, 0.72);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(142, 208, 238, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      }
+
+      .hud-btn {
+        background: rgba(12, 33, 52, 0.76);
+        border: 1px solid rgba(142, 208, 238, 0.22);
+        color: #d6ecf8;
+        font-size: 12px;
+        line-height: 1;
+        padding: 7px 11px;
+        border-radius: 7px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background-color 140ms ease, border-color 140ms ease,
+          color 140ms ease, transform 120ms ease;
+      }
+
+      .hud-btn:hover {
+        background: rgba(24, 62, 92, 0.88);
+        border-color: rgba(120, 214, 248, 0.55);
+        color: #ffffff;
+      }
+
+      .hud-btn.is-active {
+        background: rgba(14, 134, 174, 0.92);
+        border-color: rgba(132, 232, 255, 0.85);
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      .hud-btn.is-danger.is-active {
+        background: rgba(204, 42, 54, 0.92);
+        border-color: rgba(255, 146, 154, 0.85);
+      }
+
+      .hud-btn.is-warn.is-active {
+        background: rgba(196, 118, 18, 0.92);
+        border-color: rgba(255, 214, 126, 0.85);
+      }
+
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .tier-pill {
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(142, 208, 238, 0.2);
+        background: rgba(12, 34, 52, 0.65);
+        color: #9dc2d8;
+        transition: all 180ms ease;
+      }
+
+      .tier-pill.is-lit {
+        border-color: rgba(56, 218, 240, 0.75);
+        background: rgba(14, 118, 148, 0.45);
+        color: #e9fbff;
+      }
+
+      .tier-pill.is-warn {
+        border-color: rgba(255, 190, 66, 0.8);
+        background: rgba(176, 108, 16, 0.45);
+        color: #fff6dd;
+      }
+
+      .tier-pill.is-crit {
+        border-color: rgba(255, 96, 106, 0.85);
+        background: rgba(180, 28, 42, 0.55);
+        color: #ffecef;
+      }
+
+      .hud-hidden .hud-collapsible {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(8px);
+      }
+
+      .hud-collapsible {
+        transition: opacity 200ms ease, transform 200ms ease;
+      }
+
+      /* Custom range slider */
+      input[type="range"].sim-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(142, 208, 238, 0.25);
+        outline: none;
+      }
+
+      input[type="range"].sim-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: #3dd5f3;
+        border: 2px solid #071929;
+        cursor: pointer;
+      }
+
+      /* Scrollbars inside side telemetry drawer */
+      .telemetry-scroll::-webkit-scrollbar {
+        width: 5px;
+      }
+      .telemetry-scroll::-webkit-scrollbar-thumb {
+        background: rgba(142, 208, 238, 0.28);
+        border-radius: 999px;
+      }
+
+      #label-overlay {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .world-tag {
+        position: absolute;
+        transform: translate(-50%, -100%);
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        line-height: 1.25;
+        white-space: nowrap;
+        background: rgba(6, 18, 30, 0.82);
+        border: 1px solid rgba(112, 216, 248, 0.45);
+        color: #e6f7ff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      }
+
+      .world-tag--warn {
+        border-color: rgba(255, 174, 52, 0.85);
+        color: #ffe9be;
+      }
+
+      .world-tag--crit {
+        border-color: rgba(255, 86, 98, 0.9);
+        color: #ffdce0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="gl-canvas" aria-label="3D Autonomous Hydrographic Survey USV Simulation"></canvas>
+    <div id="label-overlay" aria-hidden="true"></div>
+
+    <!-- Top-Left Mission & 3-Tier Status Strip -->
+    <div
+      class="hud-collapsible fixed top-3 left-3 z-20 flex flex-col gap-2 max-w-[min(430px,calc(100vw-24px))]"
+    >
+      <div class="hud-panel rounded-xl px-3.5 py-2.5">
+        <div class="flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <span
+                id="severity-dot"
+                class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"
+              ></span>
+              <h1 class="text-sm font-semibold tracking-tight text-white truncate m-0">
+                Hydro-USV 3D Autonomy Twin
+              </h1>
+            </div>
+            <p
+              id="mission-subtext"
+              class="text-xs text-sky-200/80 mt-0.5 truncate m-0"
+            >
+              Executing parallel IHO multibeam survey lines
+            </p>
+          </div>
+          <span
+            id="mission-badge"
+            class="mono text-xs font-semibold px-2.5 py-1 rounded-md bg-cyan-500/20 border border-cyan-300/40 text-cyan-100 shrink-0"
+          >
+            SURVEY MODE
+          </span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-1.5 mt-2">
+          <span id="tier-1-pill" class="tier-pill mono is-lit">T1 MOOS-IvP</span>
+          <span id="tier-2-pill" class="tier-pill mono is-lit">T2 ROS 2 EKF</span>
+          <span id="tier-3-pill" class="tier-pill mono is-lit">T3 CUDA MBES</span>
+          <span id="severity-badge" class="tier-pill mono ml-auto is-lit">OK</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top-Right Compact Utility Buttons -->
+    <div class="fixed top-3 right-3 z-30 flex items-center gap-1.5">
+      <a href="index.html" class="hud-btn" title="Back to Architecture Atlas Diagrams">← Diagrams</a>
+      <button id="btn-telemetry-toggle" class="hud-btn is-active" title="Toggle live telemetry panel">
+        Telemetry
+      </button>
+      <button id="btn-hud-toggle" class="hud-btn" title="Hide or show HUD (H)">
+        Hide HUD
+      </button>
+    </div>
+
+    <!-- Right Collapsible Live Telemetry & Subsystem Drawer -->
+    <aside
+      id="telemetry-drawer"
+      class="hud-collapsible hud-panel telemetry-scroll fixed top-14 right-3 z-20 w-[276px] max-h-[calc(100vh-156px)] overflow-y-auto rounded-xl p-3 space-y-3 text-xs"
+    >
+      <!-- Bathymetry Pipeline (Diagram 3) -->
+      <section class="space-y-1.5">
+        <div class="flex items-center justify-between text-sky-200/80 font-medium">
+          <span>Bathymetry (CUDA CUBE)</span>
+          <span id="sonar-mode-tag" class="mono text-cyan-300">MBES 512 @ 5Hz</span>
+        </div>
+        <div class="w-full h-2 rounded-full bg-slate-800/90 overflow-hidden border border-sky-400/20">
+          <div
+            id="coverage-bar"
+            class="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-300"
+            style="width: 12%"
+          ></div>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5 pt-0.5 mono text-[11px]">
+          <div class="bg-slate-900/60 rounded px-2 py-1 border border-sky-400/15">
+            <div class="text-sky-200/60 text-[10px]">Coverage</div>
+            <div id="val-coverage" class="text-white font-semibold">0.0%</div>
+          </div>
+          <div class="bg-slate-900/60 rounded px-2 py-1 border border-sky-400/15">
+            <div class="text-sky-200/60 text-[10px]">Depth</div>
+            <div id="val-depth" class="text-white font-semibold">12.4 m</div>
+          </div>
+          <div class="bg-slate-900/60 rounded px-2 py-1 border border-sky-400/15">
+            <div class="text-sky-200/60 text-[10px]">Swath</div>
+            <div id="val-swath" class="text-white font-semibold">26.0 m</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Power Management (Diagram 6) -->
+      <section class="pt-2 border-t border-sky-300/15 space-y-1.5">
+        <div class="flex items-center justify-between text-sky-200/80 font-medium">
+          <span>Power (48V · 10 kWh)</span>
+          <span id="power-mode-tag" class="mono text-emerald-300">NORMAL</span>
+        </div>
+        <div class="w-full h-2 rounded-full bg-slate-800/90 overflow-hidden border border-sky-400/20">
+          <div
+            id="battery-bar"
+            class="h-full bg-emerald-400 transition-all duration-300"
+            style="width: 84%"
+          ></div>
+        </div>
+        <div class="flex items-center justify-between mono text-[11px] text-sky-100/90">
+          <span id="val-soc">SoC 84.0%</span>
+          <span id="val-power">1,287 W</span>
+          <span id="val-volts">48.4 V</span>
+        </div>
+      </section>
+
+      <!-- EKF Sensor Fusion (Diagram 4) -->
+      <section class="pt-2 border-t border-sky-300/15 space-y-1">
+        <div class="flex items-center justify-between text-sky-200/80 font-medium">
+          <span>EKF State (50 Hz)</span>
+          <span class="mono text-sky-300/80">/odometry/filtered</span>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5 mono text-[11px]">
+          <div class="bg-slate-900/60 rounded px-2 py-1 border border-sky-400/15">
+            <span class="text-sky-200/60">SOG </span>
+            <span id="val-speed" class="text-white">3.2 m/s</span>
+          </div>
+          <div class="bg-slate-900/60 rounded px-2 py-1 border border-sky-400/15">
+            <span class="text-sky-200/60">HDG </span>
+            <span id="val-hdg" class="text-white">000°</span>
+          </div>
+          <div class="bg-slate-900/60 rounded px-2 py-1 border border-sky-400/15">
+            <span class="text-sky-200/60">R/P </span>
+            <span id="val-att" class="text-white">+1.2°/-0.8°</span>
+          </div>
+          <div class="bg-slate-900/60 rounded px-2 py-1 border border-sky-400/15">
+            <span class="text-sky-200/60">THR </span>
+            <span id="val-thr" class="text-white">72% / 72%</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- COLREGS & Telemetry Link (Diagrams 5 & 7) -->
+      <section class="pt-2 border-t border-sky-300/15 space-y-1.5">
+        <div class="flex items-center justify-between text-sky-200/80 font-medium">
+          <span>COLREGS &amp; Comms</span>
+          <span id="comm-link-tag" class="mono text-cyan-300">RADIO 15km</span>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5 mono text-[11px]">
+          <div class="bg-slate-900/60 rounded px-2 py-1 border border-sky-400/15">
+            <div class="text-sky-200/60 text-[10px]">Nearest CPA</div>
+            <div id="val-cpa" class="text-white">38.2 m</div>
+          </div>
+          <div class="bg-slate-900/60 rounded px-2 py-1 border border-sky-400/15">
+            <div class="text-sky-200/60 text-[10px]">Risk / Rule</div>
+            <div id="val-colregs" class="text-emerald-300">LOW · MONITOR</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3D Sensor Overlays -->
+      <section class="pt-2 border-t border-sky-300/15 space-y-1.5">
+        <div class="text-sky-200/80 font-medium">3D Sensor Layers</div>
+        <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+          <label class="flex items-center gap-1.5 cursor-pointer text-sky-100/90">
+            <input id="chk-sonar" type="checkbox" checked class="accent-cyan-400" />
+            MBES Sonar
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-sky-100/90">
+            <input id="chk-lidar" type="checkbox" checked class="accent-amber-400" />
+            LiDAR + YOLO
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-sky-100/90">
+            <input id="chk-track" type="checkbox" checked class="accent-emerald-400" />
+            Survey Track
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-sky-100/90">
+            <input id="chk-comms" type="checkbox" checked class="accent-sky-400" />
+            RF + Geofence
+          </label>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Bottom Mission Director & Camera Control Dock -->
+    <div
+      class="hud-collapsible fixed bottom-3 left-3 right-3 z-20 flex justify-center pointer-events-none"
+    >
+      <div
+        class="hud-panel pointer-events-auto rounded-xl px-2.5 py-2 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 max-w-[1260px]"
+      >
+        <!-- Scenario Controls -->
+        <div class="flex flex-wrap items-center gap-1">
+          <span class="text-[11px] uppercase tracking-wider text-sky-200/60 mr-0.5 hidden xl:inline">
+            Mission
+          </span>
+          <button class="hud-btn is-active" data-scenario="auto">Auto Cycle</button>
+          <button class="hud-btn" data-scenario="survey">Survey</button>
+          <button class="hud-btn is-warn" data-scenario="colregs">COLREGS Dodge</button>
+          <button class="hud-btn is-warn" data-scenario="lowbatt">Low Battery</button>
+          <button class="hud-btn is-warn" data-scenario="lostcomms">Lost Comms</button>
+          <button class="hud-btn is-danger" data-scenario="estop">E-Stop</button>
+        </div>
+
+        <span class="h-5 w-px bg-sky-300/20 hidden md:inline-block"></span>
+
+        <!-- Camera Presets -->
+        <div class="flex flex-wrap items-center gap-1">
+          <span class="text-[11px] uppercase tracking-wider text-sky-200/60 mr-0.5 hidden xl:inline">
+            Cam
+          </span>
+          <button class="hud-btn is-active" data-cam="chase">Chase</button>
+          <button class="hud-btn" data-cam="underwater">Underwater Sonar</button>
+          <button class="hud-btn" data-cam="bow">Bow Close-Up</button>
+          <button class="hud-btn" data-cam="overhead">Tactical Map</button>
+        </div>
+
+        <span class="h-5 w-px bg-sky-300/20 hidden lg:inline-block"></span>
+
+        <!-- Atmosphere & Playback -->
+        <div class="flex flex-wrap items-center gap-1.5 text-xs">
+          <button id="btn-play" class="hud-btn" title="Play / Pause (Space)">Pause</button>
+          <button id="btn-time" class="hud-btn" title="Cycle lighting">Golden Hour</button>
+          <label class="flex items-center gap-1.5 text-sky-100/85 pl-0.5">
+            <span>Sea</span>
+            <input
+              id="slider-sea"
+              type="range"
+              min="0.3"
+              max="1.7"
+              step="0.05"
+              value="0.9"
+              class="sim-slider w-14"
+            />
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="webgl-fallback"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950 p-6 text-center"
+    >
+      <div class="max-w-md space-y-2">
+        <h2 class="text-lg font-semibold text-white">WebGL2 Unavailable</h2>
+        <p class="text-sm text-slate-300">
+          This real-time 3D ocean and hydrographic USV simulation requires WebGL2 support.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const canvas = document.getElementById("gl-canvas");
+        const gl = canvas.getContext("webgl2", {
+          antialias: true,
+          alpha: false,
+          powerPreference: "high-performance",
+        });
+
+        if (!gl) {
+          document.getElementById("webgl-fallback").classList.remove("hidden");
+          return;
+        }
+
+        // ============================================================
+        // 1. Minimal High-Precision Vector & Matrix Math (Column-Major)
+        // ============================================================
+        const PI = Math.PI;
+        const TAU = PI * 2;
+        const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+        const lerp = (a, b, t) => a + (b - a) * t;
+
+        function v3(x = 0, y = 0, z = 0) {
+          return [x, y, z];
+        }
+        function v3Add(a, b) {
+          return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+        }
+        function v3Sub(a, b) {
+          return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+        }
+        function v3Scale(a, s) {
+          return [a[0] * s, a[1] * s, a[2] * s];
+        }
+        function v3Dot(a, b) {
+          return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+        }
+        function v3Cross(a, b) {
+          return [
+            a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0],
+          ];
+        }
+        function v3Len(a) {
+          return Math.hypot(a[0], a[1], a[2]);
+        }
+        function v3Norm(a) {
+          const l = v3Len(a) || 1;
+          return [a[0] / l, a[1] / l, a[2] / l];
+        }
+
+        function mat4Identity() {
+          const m = new Float32Array(16);
+          m[0] = m[5] = m[10] = m[15] = 1;
+          return m;
+        }
+
+        function mat4Mul(a, b) {
+          const o = new Float32Array(16);
+          for (let c = 0; c < 4; c++) {
+            const b0 = b[c * 4],
+              b1 = b[c * 4 + 1],
+              b2 = b[c * 4 + 2],
+              b3 = b[c * 4 + 3];
+            o[c * 4] = a[0] * b0 + a[4] * b1 + a[8] * b2 + a[12] * b3;
+            o[c * 4 + 1] = a[1] * b0 + a[5] * b1 + a[9] * b2 + a[13] * b3;
+            o[c * 4 + 2] = a[2] * b0 + a[6] * b1 + a[10] * b2 + a[14] * b3;
+            o[c * 4 + 3] = a[3] * b0 + a[7] * b1 + a[11] * b2 + a[15] * b3;
+          }
+          return o;
+        }
+
+        function mat4Perspective(fovRad, aspect, near, far) {
+          const f = 1.0 / Math.tan(fovRad * 0.5);
+          const nf = 1.0 / (near - far);
+          const m = new Float32Array(16);
+          m[0] = f / aspect;
+          m[5] = f;
+          m[10] = (far + near) * nf;
+          m[11] = -1;
+          m[14] = 2 * far * near * nf;
+          return m;
+        }
+
+        function mat4LookAt(eye, target, up) {
+          const z = v3Norm(v3Sub(eye, target));
+          const x = v3Norm(v3Cross(up, z));
+          const y = v3Cross(z, x);
+          const m = new Float32Array(16);
+          m[0] = x[0];
+          m[1] = y[0];
+          m[2] = z[0];
+          m[4] = x[1];
+          m[5] = y[1];
+          m[6] = z[1];
+          m[8] = x[2];
+          m[9] = y[2];
+          m[10] = z[2];
+          m[12] = -v3Dot(x, eye);
+          m[13] = -v3Dot(y, eye);
+          m[14] = -v3Dot(z, eye);
+          m[15] = 1;
+          return m;
+        }
+
+        function mat4Invert(m) {
+          const out = new Float32Array(16);
+          const a00 = m[0], a01 = m[1], a02 = m[2], a03 = m[3];
+          const a10 = m[4], a11 = m[5], a12 = m[6], a13 = m[7];
+          const a20 = m[8], a21 = m[9], a22 = m[10], a23 = m[11];
+          const a30 = m[12], a31 = m[13], a32 = m[14], a33 = m[15];
+
+          const b00 = a00 * a11 - a01 * a10;
+          const b01 = a00 * a12 - a02 * a10;
+          const b02 = a00 * a13 - a03 * a10;
+          const b03 = a01 * a12 - a02 * a11;
+          const b04 = a01 * a13 - a03 * a11;
+          const b05 = a02 * a13 - a03 * a12;
+          const b06 = a20 * a31 - a21 * a30;
+          const b07 = a20 * a32 - a22 * a30;
+          const b08 = a20 * a33 - a23 * a30;
+          const b09 = a21 * a32 - a22 * a31;
+          const b10 = a21 * a33 - a23 * a31;
+          const b11 = a22 * a33 - a23 * a32;
+
+          let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+          if (!det) return mat4Identity();
+          det = 1.0 / det;
+
+          out[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+          out[1] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+          out[2] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+          out[3] = (a22 * b04 - a21 * b05 - a23 * b03) * det;
+          out[4] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+          out[5] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+          out[6] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+          out[7] = (a20 * b05 - a22 * b02 + a23 * b01) * det;
+          out[8] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+          out[9] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+          out[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+          out[11] = (a21 * b02 - a20 * b04 - a23 * b00) * det;
+          out[12] = (a11 * b07 - a10 * b09 - a12 * b06) * det;
+          out[13] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
+          out[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
+          out[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
+          return out;
+        }
+
+        function mat4FromBasis(pos, right, up, forward) {
+          const m = new Float32Array(16);
+          m[0] = right[0]; m[1] = right[1]; m[2] = right[2];
+          m[4] = up[0]; m[5] = up[1]; m[6] = up[2];
+          m[8] = forward[0]; m[9] = forward[1]; m[10] = forward[2];
+          m[12] = pos[0]; m[13] = pos[1]; m[14] = pos[2]; m[15] = 1;
+          return m;
+        }
+
+        function mat4TRS(tx, ty, tz, rx, ry, rz, sx = 1, sy = 1, sz = 1) {
+          const cx = Math.cos(rx), sxr = Math.sin(rx);
+          const cy = Math.cos(ry), syr = Math.sin(ry);
+          const cz = Math.cos(rz), szr = Math.sin(rz);
+          const m = new Float32Array(16);
+          m[0] = (cy * cz) * sx;
+          m[1] = (cy * szr) * sx;
+          m[2] = (-syr) * sx;
+          m[4] = (sxr * syr * cz - cx * szr) * sy;
+          m[5] = (sxr * syr * szr + cx * cz) * sy;
+          m[6] = (sxr * cy) * sy;
+          m[8] = (cx * syr * cz + sxr * szr) * sz;
+          m[9] = (cx * syr * szr - sxr * cz) * sz;
+          m[10] = (cx * cy) * sz;
+          m[12] = tx; m[13] = ty; m[14] = tz; m[15] = 1;
+          return m;
+        }
+
+        function transformPoint(m, p) {
+          return [
+            m[0] * p[0] + m[4] * p[1] + m[8] * p[2] + m[12],
+            m[1] * p[0] + m[5] * p[1] + m[9] * p[2] + m[13],
+            m[2] * p[0] + m[6] * p[1] + m[10] * p[2] + m[14],
+          ];
+        }
+
+        function projectToScreen(vp, worldPos, width, height) {
+          const x = vp[0] * worldPos[0] + vp[4] * worldPos[1] + vp[8] * worldPos[2] + vp[12];
+          const y = vp[1] * worldPos[0] + vp[5] * worldPos[1] + vp[9] * worldPos[2] + vp[13];
+          const z = vp[2] * worldPos[0] + vp[6] * worldPos[1] + vp[10] * worldPos[2] + vp[14];
+          const w = vp[3] * worldPos[0] + vp[7] * worldPos[1] + vp[11] * worldPos[2] + vp[15];
+          if (w <= 0.1) return null;
+          const ndcX = x / w;
+          const ndcY = y / w;
+          const ndcZ = z / w;
+          if (ndcZ < -1 || ndcZ > 1 || ndcX < -1.1 || ndcX > 1.1 || ndcY < -1.1 || ndcY > 1.1) {
+            return null;
+          }
+          return [(ndcX * 0.5 + 0.5) * width, (1 - (ndcY * 0.5 + 0.5)) * height];
+        }
+
+        // ============================================================
+        // 2. Shared Ocean Wave Spectrum & Seabed Bathymetry Model
+        // ============================================================
+        // Each wave: [dirX, dirZ, amplitude, wavelength, steepness, speed]
+        const WAVES = [
+          [0.86, 0.51, 0.22, 26.0, 0.42, 1.45],
+          [0.34, 0.94, 0.15, 17.5, 0.36, 1.72],
+          [-0.64, 0.77, 0.10, 11.8, 0.32, 2.05],
+          [0.95, -0.31, 0.065, 7.6, 0.28, 2.48],
+          [-0.28, -0.96, 0.045, 5.2, 0.24, 2.95],
+          [0.52, -0.85, 0.03, 3.6, 0.20, 3.45],
+          [-0.91, 0.41, 0.02, 2.4, 0.16, 4.10],
+          [0.18, 0.98, 0.014, 1.65, 0.14, 4.85],
+        ];
+
+        function evalGerstnerRaw(x, z, t, seaScale) {
+          let dx = 0, dy = 0, dz = 0;
+          for (let i = 0; i < WAVES.length; i++) {
+            const w = WAVES[i];
+            const k = TAU / w[3];
+            const a = w[2] * seaScale;
+            const q = Math.min(w[4] / (k * a * 8.0 + 0.0001), 0.75 / (k * a * 8.0 + 0.0001));
+            const phase = k * (w[0] * x + w[1] * z) - w[5] * t;
+            const c = Math.cos(phase);
+            const s = Math.sin(phase);
+            dx += q * a * w[0] * c;
+            dz += q * a * w[1] * c;
+            dy += a * s;
+          }
+          return [dx, dy, dz];
+        }
+
+        function getWaveHeight(x, z, t, seaScale) {
+          // 1-step inverse displacement lookup for exact surface height at world (x, z)
+          const d0 = evalGerstnerRaw(x, z, t, seaScale);
+          const d1 = evalGerstnerRaw(x - d0[0], z - d0[2], t, seaScale);
+          return d1[1];
+        }
+
+        const SEABED_EXTENT = 72.0; // [-72, +72] mapped to 256x256 coverage texture
+        const COV_SIZE = 256;
+        const coverageData = new Uint8Array(COV_SIZE * COV_SIZE);
+
+        function getSeabedDepth(x, z) {
+          // Realistic hydrographic survey bathymetry (-5.2 m shoal ridge to -18.5 m trench)
+          let d = -12.8;
+          d += 1.6 * Math.sin(x * 0.055 + 0.4) * Math.cos(z * 0.042 - 0.3);
+          // Dramatic submarine seamount shoal right along early survey lines (-18, +2)
+          const r0 = Math.hypot(x + 17, z - 2);
+          d += 6.4 * Math.exp(-(r0 * r0) / 145.0);
+          // Secondary coral/rocky seamount in NE quadrant
+          const r1 = Math.hypot(x - 14, z - 10);
+          d += 5.8 * Math.exp(-(r1 * r1) / 185.0);
+          // Deep bathymetric canyon carving diagonally across survey zone
+          const channelDist = (x * 0.62 - z * 0.78 + 4.0);
+          d -= 4.8 * Math.exp(-(channelDist * channelDist) / 135.0);
+          // Submerged wreck/reef outcrop near center
+          const r3 = Math.hypot(x + 2, z + 10);
+          d += 3.2 * Math.exp(-(r3 * r3) / 48.0);
+          // Fine seabed sand ripples
+          d += 0.48 * Math.sin(x * 0.28 + z * 0.16) + 0.26 * Math.cos(x * 0.45 - z * 0.38);
+          // Gentle coastal shelf rise toward Shore Operator Station (z ~ -56)
+          const shoreRise = Math.exp(-Math.pow((z + 58) / 18.0, 2.0));
+          d += 4.5 * shoreRise;
+          return clamp(d, -19.0, -4.8);
+        }
+
+        // ============================================================
+        // 3. WebGL2 Shader Compilation & Geometry Utilities
+        // ============================================================
+        function compileShader(type, src) {
+          const s = gl.createShader(type);
+          gl.shaderSource(s, src);
+          gl.compileShader(s);
+          if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+            console.error("Shader compile error:", gl.getShaderInfoLog(s), src);
+            throw new Error(gl.getShaderInfoLog(s));
+          }
+          return s;
+        }
+
+        function createProgram(vsSrc, fsSrc) {
+          const p = gl.createProgram();
+          gl.attachShader(p, compileShader(gl.VERTEX_SHADER, vsSrc));
+          gl.attachShader(p, compileShader(gl.FRAGMENT_SHADER, fsSrc));
+          gl.linkProgram(p);
+          if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+            console.error("Program link error:", gl.getProgramInfoLog(p));
+            throw new Error(gl.getProgramInfoLog(p));
+          }
+          return p;
+        }
+
+        function getUniforms(prog, names) {
+          const u = {};
+          for (const n of names) u[n] = gl.getUniformLocation(prog, n);
+          return u;
+        }
+
+        // Shared GLSL Atmospheric Sky + Sun Lighting Chunk
+        const SKY_GLSL = /* glsl */ `
+          vec3 evalSky(vec3 dir, vec3 sunDir, vec3 zenithCol, vec3 horizonCol, vec3 sunCol, float time) {
+            float y = max(dir.y, 0.0);
+            float horizonFactor = pow(1.0 - y, 3.4);
+            vec3 sky = mix(zenithCol, horizonCol, horizonFactor);
+
+            // Soft Mie solar glow & crisp solar disc
+            float sunDot = max(dot(dir, sunDir), 0.0);
+            sky += sunCol * (pow(sunDot, 10.0) * 0.32 + pow(sunDot, 120.0) * 0.95);
+            sky += sunCol * smoothstep(0.9991, 0.99985, sunDot) * 4.5;
+
+            // Subtle drifting high-altitude maritime clouds
+            if (dir.y > 0.015) {
+              vec2 uv = dir.xz / (dir.y + 0.14) * 0.72 + vec2(time * 0.008, time * 0.004);
+              float n = 0.0;
+              float amp = 0.5;
+              vec2 p = uv;
+              for (int i = 0; i < 4; i++) {
+                float h = sin(p.x * 2.1 + cos(p.y * 1.9)) * cos(p.y * 2.3 - sin(p.x * 1.7));
+                n += (h * 0.5 + 0.5) * amp;
+                p = p * 2.07 + vec2(3.1, -1.7);
+                amp *= 0.5;
+              }
+              float cloudMask = smoothstep(0.54, 0.84, n) * smoothstep(0.015, 0.24, dir.y);
+              vec3 cloudLit = mix(horizonCol * 0.92 + vec3(0.08), sunCol * 1.05 + vec3(0.18), pow(sunDot, 2.0) * 0.7 + 0.2);
+              sky = mix(sky, cloudLit, cloudMask * 0.42);
+            }
+            return sky;
+          }
+        `;
+
+        // --- A. Full-Screen Sky Dome Program ---
+        const skyProg = createProgram(
+          `#version 300 es
+          out vec2 vUv;
+          void main() {
+            vec2 pos = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+            vUv = pos * 2.0 - 1.0;
+            gl_Position = vec4(vUv, 0.9999, 1.0);
+          }`,
+          `#version 300 es
+          precision highp float;
+          in vec2 vUv;
+          out vec4 fragColor;
+          uniform mat4 uInvVP;
+          uniform vec3 uCamPos;
+          uniform vec3 uSunDir;
+          uniform vec3 uZenithCol;
+          uniform vec3 uHorizonCol;
+          uniform vec3 uSunCol;
+          uniform float uTime;
+          ${SKY_GLSL}
+          void main() {
+            vec4 farP = uInvVP * vec4(vUv, 1.0, 1.0);
+            vec3 dir = normalize(farP.xyz / farP.w - uCamPos);
+            vec3 col;
+            if (uCamPos.y < -0.05) {
+              // Underwater volumetric backdrop
+              float upFade = clamp(dir.y * 0.7 + 0.5, 0.0, 1.0);
+              vec3 deepCol = vec3(0.015, 0.08, 0.14);
+              vec3 midCol = vec3(0.03, 0.22, 0.30);
+              col = mix(deepCol, midCol, upFade);
+              float shafts = pow(max(dot(dir, normalize(uSunDir + vec3(0.0, 0.45, 0.0))), 0.0), 8.0);
+              col += vec3(0.08, 0.34, 0.42) * shafts * clamp(uSunDir.y * 2.5 + 0.25, 0.1, 1.0);
+            } else {
+              col = evalSky(dir, uSunDir, uZenithCol, uHorizonCol, uSunCol, uTime);
+              if (dir.y < 0.0) {
+                col = mix(uHorizonCol * 0.65, vec3(0.02, 0.09, 0.16), clamp(-dir.y * 6.0, 0.0, 1.0));
+              }
+            }
+            // ACES Filmic Tone Mapping
+            col = (col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14);
+            col = pow(clamp(col, 0.0, 1.0), vec3(1.0 / 2.2));
+            fragColor = vec4(col, 1.0);
+          }`
+        );
+        const skyU = getUniforms(skyProg, [
+          "uInvVP", "uCamPos", "uSunDir", "uZenithCol", "uHorizonCol", "uSunCol", "uTime"
+        ]);
+
+        // --- B. Photorealistic Seabed + Live CUDA Bathymetry Heatmap Program ---
+        const seabedProg = createProgram(
+          `#version 300 es
+          layout(location = 0) in vec3 aPos;
+          layout(location = 1) in vec3 aNormal;
+          uniform mat4 uVP;
+          out vec3 vWorldPos;
+          out vec3 vNormal;
+          void main() {
+            vWorldPos = aPos;
+            vNormal = aNormal;
+            gl_Position = uVP * vec4(aPos, 1.0);
+          }`,
+          `#version 300 es
+          precision highp float;
+          in vec3 vWorldPos;
+          in vec3 vNormal;
+          out vec4 fragColor;
+
+          uniform vec3 uCamPos;
+          uniform vec3 uSunDir;
+          uniform vec3 uSunCol;
+          uniform vec3 uHorizonCol;
+          uniform float uTime;
+          uniform float uSeabedExtent;
+          uniform sampler2D uCoverageTex;
+          uniform vec3 uUsvPos;
+          uniform vec2 uUsvFwd;
+          uniform float uSonarActive;
+          uniform float uSonarHalfWidth;
+
+          vec3 ihoBathymetryRamp(float depthAbs) {
+            // 5m (shallow coral-amber) -> 11m (emerald-cyan) -> 18.5m (deep cobalt)
+            float t = clamp((depthAbs - 5.2) / 13.0, 0.0, 1.0);
+            vec3 c0 = vec3(0.95, 0.45, 0.24);
+            vec3 c1 = vec3(0.94, 0.82, 0.34);
+            vec3 c2 = vec3(0.18, 0.80, 0.62);
+            vec3 c3 = vec3(0.08, 0.52, 0.82);
+            vec3 c4 = vec3(0.07, 0.20, 0.56);
+            if (t < 0.25) return mix(c0, c1, t / 0.25);
+            if (t < 0.50) return mix(c1, c2, (t - 0.25) / 0.25);
+            if (t < 0.75) return mix(c2, c3, (t - 0.50) / 0.25);
+            return mix(c3, c4, (t - 0.75) / 0.25);
+          }
+
+          float caustics(vec2 p, float t) {
+            vec2 p1 = p * 0.38 + vec2(t * 0.22, -t * 0.16);
+            vec2 p2 = p * 0.53 + vec2(-t * 0.18, t * 0.25);
+            float a = sin(p1.x * 2.4 + cos(p1.y * 2.1 + t * 0.6));
+            float b = sin(p2.y * 2.7 + cos(p2.x * 2.2 - t * 0.5));
+            return pow(clamp(0.5 + 0.5 * a * b, 0.0, 1.0), 3.0);
+          }
+
+          void main() {
+            vec3 N = normalize(vNormal);
+            float depth = max(0.5, -vWorldPos.y);
+
+            // Natural sandy-rock seabed material
+            float sandRipple = sin(vWorldPos.x * 1.4 + vWorldPos.z * 0.8) * 0.5 + 0.5;
+            vec3 sandCol = mix(vec3(0.18, 0.24, 0.25), vec3(0.30, 0.34, 0.30), sandRipple);
+            float slope = 1.0 - clamp(N.y, 0.0, 1.0);
+            vec3 rockCol = vec3(0.14, 0.17, 0.20);
+            vec3 baseAlbedo = mix(sandCol, rockCol, smoothstep(0.18, 0.5, slope));
+
+            // Dynamic CUDA CUBE bathymetric coverage map
+            vec2 covUv = (vWorldPos.xz / (uSeabedExtent * 2.0)) + 0.5;
+            float cov = 0.0;
+            if (covUv.x > 0.0 && covUv.x < 1.0 && covUv.y > 0.0 && covUv.y < 1.0) {
+              cov = texture(uCoverageTex, covUv).r;
+            }
+
+            vec3 bathyCol = ihoBathymetryRamp(depth);
+            // Crisp 1-meter IHO depth contour lines on surveyed seabed
+            float contour = abs(fract(depth) - 0.5);
+            float contourLine = 1.0 - smoothstep(0.02, 0.06, contour);
+            bathyCol = mix(bathyCol, vec3(0.95, 0.99, 1.0), contourLine * 0.36);
+
+            vec3 albedo = mix(baseAlbedo, bathyCol, smoothstep(0.08, 0.55, cov) * 0.86);
+
+            // Direct sun + dancing underwater solar caustics
+            float ndotl = max(dot(N, uSunDir), 0.0);
+            float cVal = caustics(vWorldPos.xz, uTime) * exp(-depth * 0.085) * clamp(uSunDir.y * 2.4 + 0.25, 0.15, 1.0);
+            vec3 lit = albedo * (vec3(0.14, 0.24, 0.30) + uSunCol * ndotl * 0.65);
+            lit += vec3(0.24, 0.68, 0.72) * cVal * (0.45 + 0.45 * (1.0 - cov));
+
+            // Glowing live MBES swath laser contact bar on the seafloor
+            if (uSonarActive > 0.5) {
+              vec2 rel = vWorldPos.xz - uUsvPos.xz;
+              vec2 fwd = normalize(uUsvFwd);
+              vec2 right = vec2(fwd.y, -fwd.x);
+              float along = dot(rel, fwd);
+              float across = dot(rel, right);
+              float pingBand = exp(-(along * along) / 1.4) * smoothstep(uSonarHalfWidth + 1.2, uSonarHalfWidth - 0.8, abs(across));
+              float pingPulse = 0.65 + 0.35 * sin(uTime * 18.0 - abs(across) * 0.4);
+              lit += vec3(0.10, 0.95, 1.0) * pingBand * pingPulse * 1.15;
+            }
+
+            // Beer-Lambert underwater depth absorption & fog
+            float dist = length(uCamPos - vWorldPos);
+            vec3 absorb;
+            if (uCamPos.y < -0.05) {
+              float fog = 1.0 - exp(-dist * 0.034);
+              vec3 uwFog = vec3(0.02, 0.14, 0.22);
+              lit = mix(lit, uwFog, fog);
+            } else {
+              // Viewing seabed from above water: depth attenuation + distant marine haze
+              absorb = exp(-depth * vec3(0.22, 0.075, 0.042));
+              lit *= mix(absorb, vec3(0.75, 0.92, 0.96), cov * 0.45);
+              float airFog = 1.0 - exp(-max(0.0, dist - 40.0) * 0.008);
+              lit = mix(lit, uHorizonCol * 0.7, clamp(airFog, 0.0, 0.85));
+            }
+
+            // ACES Filmic Tone Mapping
+            lit = (lit * (2.51 * lit + 0.03)) / (lit * (2.43 * lit + 0.59) + 0.14);
+            lit = pow(clamp(lit, 0.0, 1.0), vec3(1.0 / 2.2));
+            fragColor = vec4(lit, 1.0);
+          }`
+        );
+        const seabedU = getUniforms(seabedProg, [
+          "uVP", "uCamPos", "uSunDir", "uSunCol", "uHorizonCol", "uTime",
+          "uSeabedExtent", "uCoverageTex", "uUsvPos", "uUsvFwd", "uSonarActive", "uSonarHalfWidth"
+        ]);
+
+        // --- C. Photorealistic Gerstner Ocean Surface Program ---
+        const oceanProg = createProgram(
+          `#version 300 es
+          layout(location = 0) in vec2 aXZ;
+          uniform mat4 uVP;
+          uniform float uTime;
+          uniform float uSeaScale;
+          uniform vec4 uWavesA[8]; // dirX, dirZ, amp, wavelength
+          uniform vec4 uWavesB[8]; // steepness, speed, 0, 0
+          out vec3 vWorldPos;
+          out vec3 vNormal;
+          out float vCrest;
+
+          void main() {
+            vec3 p = vec3(aXZ.x, 0.0, aXZ.y);
+            vec3 tangent = vec3(1.0, 0.0, 0.0);
+            vec3 binormal = vec3(0.0, 0.0, 1.0);
+            float crest = 0.0;
+
+            // Gently attenuate vertex waves far toward the horizon to prevent aliasing
+            float r = length(aXZ);
+            float distFade = 1.0 - smoothstep(130.0, 360.0, r);
+            float scale = uSeaScale * (0.2 + 0.8 * distFade);
+
+            for (int i = 0; i < 8; i++) {
+              vec2 dir = uWavesA[i].xy;
+              float amp = uWavesA[i].z * scale;
+              float k = 6.2831853 / uWavesA[i].w;
+              float steep = uWavesB[i].x;
+              float speed = uWavesB[i].y;
+              float q = min(steep / (k * amp * 8.0 + 0.0001), 0.72 / (k * amp * 8.0 + 0.0001));
+              float phase = k * dot(dir, aXZ) - speed * uTime;
+              float c = cos(phase);
+              float s = sin(phase);
+
+              p.x += q * amp * dir.x * c;
+              p.z += q * amp * dir.y * c;
+              p.y += amp * s;
+              crest += max(0.0, s) * amp;
+
+              float wa = k * amp;
+              tangent += vec3(
+                -q * dir.x * dir.x * wa * s,
+                dir.x * wa * c,
+                -q * dir.x * dir.y * wa * s
+              );
+              binormal += vec3(
+                -q * dir.x * dir.y * wa * s,
+                dir.y * wa * c,
+                -q * dir.y * dir.y * wa * s
+              );
+            }
+
+            vWorldPos = p;
+            vNormal = normalize(cross(binormal, tangent));
+            vCrest = crest;
+            gl_Position = uVP * vec4(p, 1.0);
+          }`,
+          `#version 300 es
+          precision highp float;
+          in vec3 vWorldPos;
+          in vec3 vNormal;
+          in float vCrest;
+          out vec4 fragColor;
+
+          uniform vec3 uCamPos;
+          uniform vec3 uSunDir;
+          uniform vec3 uZenithCol;
+          uniform vec3 uHorizonCol;
+          uniform vec3 uSunCol;
+          uniform float uTime;
+          uniform float uSeaScale;
+          uniform vec4 uWakePts[32]; // x, z, age(0..1), intensity
+          uniform vec3 uUsvPos;
+          uniform vec2 uUsvFwd;
+          uniform float uUsvSpeed;
+          uniform vec3 uTrafficPos;
+          uniform vec2 uTrafficFwd;
+
+          ${SKY_GLSL}
+
+          float hash21(vec2 p) {
+            p = fract(p * vec2(234.34, 435.345));
+            p += dot(p, p + 34.23);
+            return fract(p.x * p.y);
+          }
+
+          float vnoise(vec2 p) {
+            vec2 i = floor(p);
+            vec2 f = fract(p);
+            f = f * f * (3.0 - 2.0 * f);
+            float a = hash21(i);
+            float b = hash21(i + vec2(1.0, 0.0));
+            float c = hash21(i + vec2(0.0, 1.0));
+            float d = hash21(i + vec2(1.0, 1.0));
+            return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+          }
+
+          // Fast analytical multi-directional capillary ripple normal (6x faster than finite-diff FBM)
+          vec3 microNormal(vec2 xz, float t, float dist) {
+            float atten = 1.0 / (1.0 + dist * 0.016);
+            vec2 grad = vec2(0.0);
+            const vec2 dirs[6] = vec2[6](
+              vec2(0.88, 0.47), vec2(-0.42, 0.91), vec2(0.24, -0.97),
+              vec2(-0.94, -0.34), vec2(0.68, -0.73), vec2(-0.71, 0.70)
+            );
+            const float freqs[6] = float[6](1.45, 2.35, 3.80, 5.90, 9.20, 14.50);
+            const float amps[6]  = float[6](0.065, 0.048, 0.036, 0.025, 0.017, 0.011);
+            const float spds[6]  = float[6](2.2, 2.9, 3.8, 4.9, 6.2, 7.8);
+
+            for (int i = 0; i < 6; i++) {
+              float ph = dot(xz, dirs[i]) * freqs[i] - t * spds[i];
+              float c = cos(ph) * amps[i] * freqs[i];
+              grad += dirs[i] * c;
+            }
+            float strength = (0.42 + 0.20 * uSeaScale) * atten;
+            return normalize(vec3(-grad.x * strength, 1.0, -grad.y * strength));
+          }
+
+          void main() {
+            vec3 toCam = uCamPos - vWorldPos;
+            float dist = length(toCam);
+            vec3 V = toCam / max(dist, 0.0001);
+
+            // Combine analytical Gerstner normal + crisp capillary micro-ripples
+            vec3 mN = microNormal(vWorldPos.xz, uTime, dist);
+            vec3 N = normalize(vec3(vNormal.x + mN.x * 0.52, vNormal.y, vNormal.z + mN.z * 0.52));
+
+            bool underwater = uCamPos.y < -0.05;
+            if (underwater) {
+              N = -N;
+              float cosT = max(dot(N, V), 0.0);
+              float snell = smoothstep(0.52, 0.78, cosT);
+              vec3 skyThru = evalSky(normalize(vec3(-V.x, abs(V.y) + 0.2, -V.z)), uSunDir, uZenithCol, uHorizonCol, uSunCol, uTime);
+              vec3 tirCol = vec3(0.02, 0.17, 0.25);
+              vec3 col = mix(tirCol, skyThru * vec3(0.55, 0.92, 0.95), snell * 0.85);
+              float fog = 1.0 - exp(-dist * 0.03);
+              col = mix(col, vec3(0.02, 0.14, 0.22), fog);
+              col = (col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14);
+              col = pow(clamp(col, 0.0, 1.0), vec3(1.0 / 2.2));
+              fragColor = vec4(col, mix(0.82, 0.38, snell));
+              return;
+            }
+
+            float NdotV = max(dot(N, V), 0.001);
+            float fresnel = 0.02 + 0.98 * pow(1.0 - NdotV, 5.0);
+
+            // Sky reflection + sparkling GGX sun path
+            vec3 R = reflect(-V, N);
+            R.y = max(R.y, 0.01);
+            vec3 reflCol = evalSky(R, uSunDir, uZenithCol, uHorizonCol, uSunCol, uTime);
+
+            vec3 H = normalize(V + uSunDir);
+            float NdotH = max(dot(N, H), 0.0);
+            float rough = 0.052;
+            float a2 = rough * rough;
+            float denom = NdotH * NdotH * (a2 - 1.0) + 1.0;
+            float ggx = a2 / (3.14159265 * denom * denom + 0.0001);
+            vec3 sunSpec = uSunCol * ggx * 0.48 * smoothstep(-0.04, 0.10, uSunDir.y);
+
+            // Deep oceanic body color + emerald subsurface scattering on sunlit wave crests
+            vec3 deepWater = vec3(0.009, 0.065, 0.125);
+            vec3 shallowTint = vec3(0.024, 0.195, 0.255);
+            float sssView = pow(clamp(dot(V, -uSunDir + N * 0.55), 0.0, 1.0), 3.2);
+            float sssCrest = smoothstep(0.05, 0.42, vCrest) * (0.45 + 0.55 * sssView);
+            vec3 waterBody = mix(deepWater, shallowTint, clamp(0.35 + sssCrest * 0.85, 0.0, 1.0));
+            waterBody += vec3(0.05, 0.42, 0.38) * sssCrest * clamp(uSunDir.y * 2.2 + 0.35, 0.18, 1.2);
+
+            // Dynamic Kelvin V-wake, propwash trail & bow wave foam (fast 2-octave cellular noise)
+            float foam = 0.0;
+            float foamTex = vnoise(vWorldPos.xz * 1.45 - vec2(uTime * 0.35, uTime * 0.22)) * 0.65
+                          + vnoise(vWorldPos.xz * 3.8 + vec2(uTime * 0.55, -uTime * 0.42)) * 0.35;
+
+            // Only evaluate USV wake loop within 42m of vessel (massive GPU speedup!)
+            if (length(vWorldPos.xz - uUsvPos.xz) < 42.0) {
+              for (int i = 0; i < 32; i++) {
+                vec4 wp = uWakePts[i];
+                if (wp.w > 0.01) {
+                  float age = wp.z;
+                  float radius = 0.68 + age * 4.5;
+                  float dWake = length(vWorldPos.xz - wp.xy);
+                  float core = exp(-(dWake * dWake) / (0.62 + age * 2.4)) * (1.0 - age) * 0.78;
+                  float vArm = exp(-pow((dWake - radius * 0.72) / (0.40 + age * 0.70), 2.0)) * (1.0 - age) * 0.64;
+                  foam = max(foam, (core + vArm) * wp.w);
+                }
+              }
+              // Bow wave collar around twin pontoons
+              vec2 relUsv = vWorldPos.xz - uUsvPos.xz;
+              vec2 uf = normalize(uUsvFwd);
+              vec2 ur = vec2(uf.y, -uf.x);
+              float uAlong = dot(relUsv, uf);
+              float uAcross = abs(dot(relUsv, ur));
+              float bowSpray = exp(-pow((uAlong - 1.95) / 0.82, 2.0)) * exp(-pow((uAcross - 0.72) / 0.52, 2.0));
+              foam = max(foam, bowSpray * clamp(uUsvSpeed * 0.45, 0.05, 1.0));
+            }
+
+            // Crossing traffic vessel wake
+            vec2 relT = vWorldPos.xz - uTrafficPos.xz;
+            if (dot(relT, relT) < 520.0) {
+              vec2 tf = normalize(uTrafficFwd);
+              vec2 tr = vec2(tf.y, -tf.x);
+              float tAlong = dot(relT, tf);
+              float tAcross = abs(dot(relT, tr));
+              if (tAlong < 4.5 && tAlong > -18.0 && tAcross < 6.5) {
+                float tSpread = max(0.9, (-tAlong + 4.0) * 0.28);
+                float tWake = exp(-pow((tAcross - tSpread * 0.65) / 0.72, 2.0)) * smoothstep(-18.0, -1.0, tAlong);
+                float tWash = exp(-(tAcross * tAcross) / 1.4) * smoothstep(-15.0, -3.5, tAlong) * smoothstep(2.0, -3.5, tAlong);
+                foam = max(foam, (tWake * 0.65 + tWash * 0.85));
+              }
+            }
+
+            // Natural wind-driven whitecaps on steep wave crests
+            float whitecap = smoothstep(0.28, 0.62, vCrest + (uSeaScale - 0.85) * 0.25) * smoothstep(0.48, 0.78, foamTex);
+            foam = clamp(foam * smoothstep(0.22, 0.68, foamTex) * 1.45 + whitecap * 0.62, 0.0, 1.0);
+
+            vec3 col = mix(waterBody, reflCol, clamp(fresnel * 0.92 + 0.04, 0.0, 0.96)) + sunSpec;
+            vec3 foamCol = mix(uHorizonCol * 0.65 + vec3(0.32), vec3(0.97, 0.99, 1.0), 0.74) * (0.55 + 0.55 * clamp(uSunDir.y * 2.2 + 0.25, 0.2, 1.0));
+            col = mix(col, foamCol, foam);
+
+            // Seamless atmospheric horizon melt into sky
+            float fog = smoothstep(65.0, 340.0, dist);
+            vec3 horizonSky = evalSky(normalize(vec3(-V.x, 0.008, -V.z)), uSunDir, uZenithCol, uHorizonCol, uSunCol, uTime);
+            col = mix(col, horizonSky, fog);
+
+            // Translucent water window revealing painted CUDA bathymetry below
+            float alpha = clamp(mix(0.46, 0.97, fresnel) + foam * 0.55 + fog, 0.42, 1.0);
+
+            col = (col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14);
+            col = pow(clamp(col, 0.0, 1.0), vec3(1.0 / 2.2));
+            fragColor = vec4(col, alpha);
+          }`
+        );
+        const oceanU = getUniforms(oceanProg, [
+          "uVP", "uTime", "uSeaScale", "uWavesA", "uWavesB", "uCamPos", "uSunDir",
+          "uZenithCol", "uHorizonCol", "uSunCol", "uWakePts", "uUsvPos", "uUsvFwd",
+          "uUsvSpeed", "uTrafficPos", "uTrafficFwd"
+        ]);
+
+        // --- D. Cook-Torrance PBR Program for USV, Traffic Vessel, Buoys & Shore Station ---
+        const pbrProg = createProgram(
+          `#version 300 es
+          layout(location = 0) in vec3 aPos;
+          layout(location = 1) in vec3 aNormal;
+          uniform mat4 uModel;
+          uniform mat4 uVP;
+          out vec3 vWorldPos;
+          out vec3 vNormal;
+          void main() {
+            vec4 wp = uModel * vec4(aPos, 1.0);
+            vWorldPos = wp.xyz;
+            vNormal = normalize(mat3(uModel) * aNormal);
+            gl_Position = uVP * wp;
+          }`,
+          `#version 300 es
+          precision highp float;
+          in vec3 vWorldPos;
+          in vec3 vNormal;
+          out vec4 fragColor;
+
+          uniform vec3 uCamPos;
+          uniform vec3 uSunDir;
+          uniform vec3 uSunCol;
+          uniform vec3 uZenithCol;
+          uniform vec3 uHorizonCol;
+          uniform vec3 uAlbedo;
+          uniform float uMetallic;
+          uniform float uRoughness;
+          uniform vec3 uEmissive;
+          uniform float uTime;
+
+          void main() {
+            vec3 N = normalize(vNormal);
+            vec3 V = normalize(uCamPos - vWorldPos);
+            vec3 L = normalize(uSunDir);
+            vec3 H = normalize(V + L);
+
+            float NdotL = max(dot(N, L), 0.0);
+            float NdotV = max(dot(N, V), 0.001);
+            float NdotH = max(dot(N, H), 0.0);
+            float HdotV = max(dot(H, V), 0.0);
+
+            vec3 F0 = mix(vec3(0.04), uAlbedo, uMetallic);
+            vec3 F = F0 + (1.0 - F0) * pow(1.0 - HdotV, 5.0);
+
+            float a = max(uRoughness * uRoughness, 0.02);
+            float a2 = a * a;
+            float denom = NdotH * NdotH * (a2 - 1.0) + 1.0;
+            float D = a2 / (3.14159265 * denom * denom + 0.0001);
+
+            float k = (uRoughness + 1.0) * (uRoughness + 1.0) / 8.0;
+            float gV = NdotV / (NdotV * (1.0 - k) + k);
+            float gL = NdotL / (NdotL * (1.0 - k) + k);
+            float G = gV * gL;
+
+            vec3 spec = (D * G * F) / (4.0 * NdotV * NdotL + 0.001);
+            vec3 kD = (1.0 - F) * (1.0 - uMetallic);
+            vec3 direct = (kD * uAlbedo / 3.14159265 + spec) * uSunCol * NdotL * 2.1;
+
+            // Hemisphere Sky + Ocean Bounce IBL (including subtle turquoise caustic bounce under hull)
+            float hemi = N.y * 0.5 + 0.5;
+            vec3 waterBounce = vec3(0.04, 0.18, 0.24) * (0.8 + 0.2 * sin(vWorldPos.x * 3.0 + uTime * 3.5) * cos(vWorldPos.z * 3.0 - uTime * 2.8));
+            vec3 skyAmb = mix(waterBounce, mix(uHorizonCol, uZenithCol, 0.55) * 0.62, hemi);
+
+            // Specular sky environment hint on glossy/metallic surfaces
+            vec3 R = reflect(-V, N);
+            vec3 envSpec = mix(waterBounce * 1.4, mix(uHorizonCol, uZenithCol, max(R.y, 0.0)), smoothstep(-0.2, 0.35, R.y));
+            vec3 Fenv = F0 + (max(vec3(1.0 - uRoughness), F0) - F0) * pow(1.0 - NdotV, 5.0);
+
+            vec3 col = direct + kD * uAlbedo * skyAmb * 0.95 + envSpec * Fenv * 0.65 + uEmissive;
+
+            // Underwater attenuation if part of vessel is submerged or camera is underwater
+            float dist = length(uCamPos - vWorldPos);
+            if (uCamPos.y < -0.05 || vWorldPos.y < -0.05) {
+              float uwMix = uCamPos.y < -0.05 ? clamp(1.0 - exp(-dist * 0.032), 0.0, 0.88) : clamp(-vWorldPos.y * 0.35, 0.0, 0.55);
+              col = mix(col, vec3(0.02, 0.16, 0.24), uwMix);
+            } else {
+              float fog = 1.0 - exp(-max(0.0, dist - 65.0) * 0.0055);
+              col = mix(col, uHorizonCol, clamp(fog, 0.0, 0.85));
+            }
+
+            col = (col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14);
+            col = pow(clamp(col, 0.0, 1.0), vec3(1.0 / 2.2));
+            fragColor = vec4(col, 1.0);
+          }`
+        );
+        const pbrU = getUniforms(pbrProg, [
+          "uModel", "uVP", "uCamPos", "uSunDir", "uSunCol", "uZenithCol", "uHorizonCol",
+          "uAlbedo", "uMetallic", "uRoughness", "uEmissive", "uTime"
+        ]);
+
+        // --- E. Translucent Additive Volumetric FX & 3D Sensor Overlay Program ---
+        const fxProg = createProgram(
+          `#version 300 es
+          layout(location = 0) in vec3 aPos;
+          layout(location = 1) in vec4 aColor;
+          uniform mat4 uVP;
+          uniform float uPointSize;
+          out vec4 vColor;
+          void main() {
+            vColor = aColor;
+            gl_Position = uVP * vec4(aPos, 1.0);
+            gl_PointSize = uPointSize / max(gl_Position.w, 1.0);
+          }`,
+          `#version 300 es
+          precision highp float;
+          in vec4 vColor;
+          uniform float uSoftCircle;
+          out vec4 fragColor;
+          void main() {
+            float alpha = vColor.a;
+            if (uSoftCircle > 0.5) {
+              vec2 d = gl_PointCoord - 0.5;
+              float r = dot(d, d);
+              if (r > 0.25) discard;
+              alpha *= smoothstep(0.25, 0.02, r);
+            }
+            fragColor = vec4(vColor.rgb, alpha);
+          }`
+        );
+        const fxU = getUniforms(fxProg, ["uVP", "uPointSize", "uSoftCircle"]);
+
+        // ============================================================
+        // 4. Procedural 3D Mesh Builders (Hull, Solids, Ocean, Seabed)
+        // ============================================================
+        function createMeshVAO(positions, normals, indices) {
+          const vao = gl.createVertexArray();
+          gl.bindVertexArray(vao);
+
+          const vboP = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, vboP);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+          gl.enableVertexAttribArray(0);
+          gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+
+          const vboN = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, vboN);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+          gl.enableVertexAttribArray(1);
+          gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
+
+          const ibo = gl.createBuffer();
+          gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+          const use32 = positions.length / 3 > 65535;
+          gl.bufferData(
+            gl.ELEMENT_ARRAY_BUFFER,
+            use32 ? new Uint32Array(indices) : new Uint16Array(indices),
+            gl.STATIC_DRAW
+          );
+
+          gl.bindVertexArray(null);
+          return {
+            vao,
+            count: indices.length,
+            type: use32 ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT,
+          };
+        }
+
+        function buildBox(w, h, d) {
+          const hw = w * 0.5, hh = h * 0.5, hd = d * 0.5;
+          const pos = [], norm = [], idx = [];
+          const faces = [
+            [[0, 0, 1], [[-hw, -hh, hd], [hw, -hh, hd], [hw, hh, hd], [-hw, hh, hd]]],
+            [[0, 0, -1], [[hw, -hh, -hd], [-hw, -hh, -hd], [-hw, hh, -hd], [hw, hh, -hd]]],
+            [[1, 0, 0], [[hw, -hh, hd], [hw, -hh, -hd], [hw, hh, -hd], [hw, hh, hd]]],
+            [[-1, 0, 0], [[-hw, -hh, -hd], [-hw, -hh, hd], [-hw, hh, hd], [-hw, hh, -hd]]],
+            [[0, 1, 0], [[-hw, hh, hd], [hw, hh, hd], [hw, hh, -hd], [-hw, hh, -hd]]],
+            [[0, -1, 0], [[-hw, -hh, -hd], [hw, -hh, -hd], [hw, -hh, hd], [-hw, -hh, hd]]],
+          ];
+          for (const [n, verts] of faces) {
+            const base = pos.length / 3;
+            for (const v of verts) {
+              pos.push(v[0], v[1], v[2]);
+              norm.push(n[0], n[1], n[2]);
+            }
+            idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
+          }
+          return createMeshVAO(pos, norm, idx);
+        }
+
+        function buildCylinder(rTop, rBot, h, segs = 20) {
+          const pos = [], norm = [], idx = [];
+          const hh = h * 0.5;
+          const slope = (rBot - rTop) / h;
+          // Side
+          for (let i = 0; i <= segs; i++) {
+            const a = (i / segs) * TAU;
+            const ca = Math.cos(a), sa = Math.sin(a);
+            const n = v3Norm([ca, slope, sa]);
+            pos.push(rTop * ca, hh, rTop * sa, rBot * ca, -hh, rBot * sa);
+            norm.push(n[0], n[1], n[2], n[0], n[1], n[2]);
+          }
+          for (let i = 0; i < segs; i++) {
+            const k = i * 2;
+            idx.push(k, k + 1, k + 3, k, k + 3, k + 2);
+          }
+          // Caps
+          const addCap = (y, r, ny) => {
+            if (r <= 0.0001) return;
+            const cIdx = pos.length / 3;
+            pos.push(0, y, 0);
+            norm.push(0, ny, 0);
+            for (let i = 0; i <= segs; i++) {
+              const a = (i / segs) * TAU;
+              pos.push(r * Math.cos(a), y, r * Math.sin(a));
+              norm.push(0, ny, 0);
+            }
+            for (let i = 0; i < segs; i++) {
+              if (ny > 0) idx.push(cIdx, cIdx + i + 2, cIdx + i + 1);
+              else idx.push(cIdx, cIdx + i + 1, cIdx + i + 2);
+            }
+          };
+          addCap(hh, rTop, 1);
+          addCap(-hh, rBot, -1);
+          return createMeshVAO(pos, norm, idx);
+        }
+
+        function buildSphere(r, lat = 14, lon = 20) {
+          const pos = [], norm = [], idx = [];
+          for (let y = 0; y <= lat; y++) {
+            const v = y / lat;
+            const phi = v * PI;
+            for (let x = 0; x <= lon; x++) {
+              const u = x / lon;
+              const th = u * TAU;
+              const nx = Math.sin(phi) * Math.cos(th);
+              const ny = Math.cos(phi);
+              const nz = Math.sin(phi) * Math.sin(th);
+              pos.push(r * nx, r * ny, r * nz);
+              norm.push(nx, ny, nz);
+            }
+          }
+          for (let y = 0; y < lat; y++) {
+            for (let x = 0; x < lon; x++) {
+              const a = y * (lon + 1) + x;
+              const b = a + lon + 1;
+              idx.push(a, b, a + 1, a + 1, b, b + 1);
+            }
+          }
+          return createMeshVAO(pos, norm, idx);
+        }
+
+        function buildLoftedHull(length, halfBeam, draft, freeboard, zSegs = 26, rSegs = 16) {
+          // Streamlined wave-piercing marine pontoon / vessel hull with pointed bow (+Z) and flat transom (-Z)
+          const pos = [], norm = [], idx = [];
+          for (let iz = 0; iz <= zSegs; iz++) {
+            const u = iz / zSegs; // 0 = stern (-L/2), 1 = bow (+L/2)
+            const z = (u - 0.5) * length;
+            // Beam taper: crisp transom at stern, widest midships, sleek sharp wave-piercing bow
+            let wFactor;
+            if (u < 0.25) {
+              wFactor = 0.72 + 0.28 * Math.sin((u / 0.25) * PI * 0.5);
+            } else if (u < 0.62) {
+              wFactor = 1.0;
+            } else {
+              const t = (u - 0.62) / 0.38;
+              wFactor = Math.pow(Math.max(0.002, 1.0 - t * t), 0.78);
+            }
+            const shear = u > 0.6 ? Math.pow((u - 0.6) / 0.4, 1.6) * freeboard * 0.35 : 0;
+            const keelRise = u > 0.72 ? Math.pow((u - 0.72) / 0.28, 1.7) * draft * 0.75 : 0;
+
+            for (let ir = 0; ir <= rSegs; ir++) {
+              const a = (ir / rSegs) * TAU; // around cross section
+              const ca = Math.cos(a);
+              const sa = Math.sin(a);
+              let x = ca * halfBeam * wFactor;
+              let y;
+              if (sa >= 0) {
+                // Slightly crowned deck
+                y = freeboard + shear - (1 - sa) * freeboard * 0.22;
+              } else {
+                // V-chined hydrodynamic lower hull
+                y = sa * (draft - keelRise) * Math.pow(wFactor, 0.35) + (1 + sa) * freeboard * 0.15;
+              }
+              pos.push(x, y, z);
+              norm.push(0, 1, 0);
+            }
+          }
+          const stride = rSegs + 1;
+          for (let iz = 0; iz < zSegs; iz++) {
+            for (let ir = 0; ir < rSegs; ir++) {
+              const a = iz * stride + ir;
+              const b = a + stride;
+              idx.push(a, b, a + 1, a + 1, b, b + 1);
+            }
+          }
+          // Close stern transom cap
+          const sternCenter = pos.length / 3;
+          pos.push(0, (freeboard - draft) * 0.25, -length * 0.5);
+          norm.push(0, 0, -1);
+          for (let ir = 0; ir < rSegs; ir++) {
+            idx.push(sternCenter, ir + 1, ir);
+          }
+
+          // Compute smooth vertex normals
+          const nAcc = new Float32Array(pos.length);
+          for (let i = 0; i < idx.length; i += 3) {
+            const i0 = idx[i] * 3, i1 = idx[i + 1] * 3, i2 = idx[i + 2] * 3;
+            const e1 = [pos[i1] - pos[i0], pos[i1 + 1] - pos[i0 + 1], pos[i1 + 2] - pos[i0 + 2]];
+            const e2 = [pos[i2] - pos[i0], pos[i2 + 1] - pos[i0 + 1], pos[i2 + 2] - pos[i0 + 2]];
+            const fn = v3Cross(e1, e2);
+            for (const k of [i0, i1, i2]) {
+              nAcc[k] += fn[0];
+              nAcc[k + 1] += fn[1];
+              nAcc[k + 2] += fn[2];
+            }
+          }
+          for (let i = 0; i < nAcc.length; i += 3) {
+            const n = v3Norm([nAcc[i], nAcc[i + 1], nAcc[i + 2]]);
+            norm[i] = n[0]; norm[i + 1] = n[1]; norm[i + 2] = n[2];
+          }
+          return createMeshVAO(pos, norm, idx);
+        }
+
+        function buildOceanGrid(gridN = 172, innerRadius = 90, outerRadius = 420) {
+          // Non-linear radial expansion: ultra-dense waves near USV, smooth extension to horizon
+          const pos = [];
+          const idx = [];
+          for (let iz = 0; iz <= gridN; iz++) {
+            const uz = (iz / gridN) * 2 - 1;
+            const z = Math.sign(uz) * (Math.abs(uz) * innerRadius + Math.pow(Math.abs(uz), 3.4) * (outerRadius - innerRadius));
+            for (let ix = 0; ix <= gridN; ix++) {
+              const ux = (ix / gridN) * 2 - 1;
+              const x = Math.sign(ux) * (Math.abs(ux) * innerRadius + Math.pow(Math.abs(ux), 3.4) * (outerRadius - innerRadius));
+              pos.push(x, z);
+            }
+          }
+          const stride = gridN + 1;
+          for (let iz = 0; iz < gridN; iz++) {
+            for (let ix = 0; ix < gridN; ix++) {
+              const a = iz * stride + ix;
+              const b = a + stride;
+              idx.push(a, b, a + 1, a + 1, b, b + 1);
+            }
+          }
+          const vao = gl.createVertexArray();
+          gl.bindVertexArray(vao);
+          const vbo = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
+          gl.enableVertexAttribArray(0);
+          gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+          const ibo = gl.createBuffer();
+          gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+          gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(idx), gl.STATIC_DRAW);
+          gl.bindVertexArray(null);
+          return { vao, count: idx.length, type: gl.UNSIGNED_INT };
+        }
+
+        function buildSeabedMesh(gridN = 148, extent = SEABED_EXTENT) {
+          const pos = [], norm = [], idx = [];
+          const eps = 0.6;
+          for (let iz = 0; iz <= gridN; iz++) {
+            const z = (iz / gridN * 2 - 1) * extent;
+            for (let ix = 0; ix <= gridN; ix++) {
+              const x = (ix / gridN * 2 - 1) * extent;
+              const y = getSeabedDepth(x, z);
+              const dX = (getSeabedDepth(x + eps, z) - getSeabedDepth(x - eps, z)) / (2 * eps);
+              const dZ = (getSeabedDepth(x, z + eps) - getSeabedDepth(x, z - eps)) / (2 * eps);
+              const n = v3Norm([-dX, 1.0, -dZ]);
+              pos.push(x, y, z);
+              norm.push(n[0], n[1], n[2]);
+            }
+          }
+          const stride = gridN + 1;
+          for (let iz = 0; iz < gridN; iz++) {
+            for (let ix = 0; ix < gridN; ix++) {
+              const a = iz * stride + ix;
+              const b = a + stride;
+              idx.push(a, b, a + 1, a + 1, b, b + 1);
+            }
+          }
+          return createMeshVAO(pos, norm, idx);
+        }
+
+        // Build all reusable 3D meshes once
+        const meshes = {
+          ocean: buildOceanGrid(172, 85, 420),
+          seabed: buildSeabedMesh(148, SEABED_EXTENT),
+          usvPontoon: buildLoftedHull(4.35, 0.30, 0.34, 0.30, 26, 16),
+          trafficHull: buildLoftedHull(8.2, 1.28, 0.68, 0.85, 24, 16),
+          box: buildBox(1, 1, 1),
+          cyl: buildCylinder(0.5, 0.5, 1, 20),
+          cone: buildCylinder(0.08, 0.5, 1, 16),
+          sphere: buildSphere(0.5, 12, 18),
+        };
+
+        // Dynamic GPU buffer for 3D FX (sonar fan, LiDAR, trajectories, YOLOv8 box, particles)
+        const fxVao = gl.createVertexArray();
+        gl.bindVertexArray(fxVao);
+        const fxVbo = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, fxVbo);
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 28, 0);
+        gl.enableVertexAttribArray(1);
+        gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 28, 12);
+        gl.bindVertexArray(null);
+
+        // Live 256x256 CUDA Bathymetry Coverage Texture
+        const coverageTex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, coverageTex);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, COV_SIZE, COV_SIZE, 0, gl.RED, gl.UNSIGNED_BYTE, coverageData);
+
+        // Pre-pack wave uniforms
+        const wavesA = new Float32Array(32);
+        const wavesB = new Float32Array(32);
+        for (let i = 0; i < 8; i++) {
+          wavesA[i * 4] = WAVES[i][0];
+          wavesA[i * 4 + 1] = WAVES[i][1];
+          wavesA[i * 4 + 2] = WAVES[i][2];
+          wavesA[i * 4 + 3] = WAVES[i][3];
+          wavesB[i * 4] = WAVES[i][4];
+          wavesB[i * 4 + 1] = WAVES[i][5];
+        }
+
+        // ============================================================
+        // 5. Autonomous Hydrographic Mission & 8-Subsystem Simulation
+        // ============================================================
+        // Survey box: X in [-24, +24], Z in [-20, +24]; Home Base at (0, -46)
+        const GEOFENCE = { minX: -32, maxX: 32, minZ: -32, maxZ: 32 };
+        const HOME_POS = [0, -46];
+        const SHORE_STATION = [0, -56];
+
+        // Parallel IHO hydrographic lawnmower survey waypoints
+        const SURVEY_LINES = [
+          [-22, -18], [-22, 22],
+          [-11, 22], [-11, -18],
+          [0, -18], [0, 22],
+          [11, 22], [11, -18],
+          [22, -18], [22, 22],
+        ];
+
+        const LIGHT_PRESETS = [
+          {
+            name: "Golden Hour",
+            sunDir: v3Norm([0.62, 0.23, 0.75]),
+            zenith: [0.09, 0.25, 0.50],
+            horizon: [0.95, 0.63, 0.40],
+            sunCol: [1.35, 0.92, 0.58],
+          },
+          {
+            name: "Bright Midday",
+            sunDir: v3Norm([0.36, 0.80, 0.48]),
+            zenith: [0.12, 0.42, 0.78],
+            horizon: [0.68, 0.85, 0.96],
+            sunCol: [1.22, 1.18, 1.08],
+          },
+          {
+            name: "Deep Dusk",
+            sunDir: v3Norm([-0.68, 0.08, 0.72]),
+            zenith: [0.025, 0.055, 0.14],
+            horizon: [0.40, 0.25, 0.30],
+            sunCol: [1.05, 0.52, 0.32],
+          },
+        ];
+
+        const sim = {
+          time: 0,
+          paused: false,
+          seaScale: 0.9,
+          lightIndex: 0,
+          scenario: "auto", // auto | survey | colregs | lowbatt | lostcomms | estop
+          scenarioTimer: 0,
+          camMode: "chase", // chase | underwater | bow | overhead | orbit
+          orbitYaw: -0.62,
+          orbitPitch: 0.24,
+          orbitDist: 13.5,
+          camEye: [10, 4.5, -16],
+          camTarget: [-14, 0.5, -4],
+
+          // USV kinematics & state
+          usv: {
+            x: -22,
+            z: -14,
+            y: 0,
+            yaw: 0.0, // +Z forward
+            speed: 3.1,
+            targetSpeed: 3.2,
+            pitch: 0,
+            roll: 0,
+            propPhaseL: 0,
+            propPhaseR: 0,
+            thrL: 0.72,
+            thrR: 0.72,
+            wpIndex: 1,
+            anchorDepth: 0,
+            poseMat: mat4Identity(),
+            fwd: [0, 0, 1],
+            right: [1, 0, 0],
+            up: [0, 1, 0],
+          },
+
+          // Crossing traffic vessel (for COLREGS Rules 14/15/16)
+          traffic: {
+            x: 16,
+            z: 8,
+            y: 0,
+            yaw: -PI * 0.56,
+            speed: 2.35,
+            poseMat: mat4Identity(),
+            fwd: [-1, 0, 0],
+          },
+
+          // 8-Subsystem live telemetry
+          missionState: "SURVEY MODE",
+          missionDetail: "Executing parallel IHO multibeam survey lines",
+          severity: "OK", // OK | WARNING | ERROR | CRITICAL
+          soc: 86.0, // %
+          powerMode: "NORMAL", // NORMAL | ECONOMY | LOW POWER | CRITICAL
+          commMode: "RADIO", // RADIO | CELLULAR | DEGRADED | LOST
+          sonarMode: "MBES", // MBES | SBES | OFF
+          colregsActive: false,
+          colregsRule: "LOW · MONITOR",
+          cpaDist: 40.0,
+          coveragePct: 0,
+          coveredCells: 0,
+          totalSurveyCells: 0,
+          lidarAngle: 0,
+          radarAngle: 0,
+
+          // Overlays
+          overlays: {
+            sonar: true,
+            lidar: true,
+            track: true,
+            comms: true,
+          },
+
+          // History buffers
+          wakePts: [], // {x, z, age, intensity}
+          ekfTrail: [], // [x, y, z]
+          avoidPath: [], // [x, z]
+          particles: [], // sea spray & thruster bubbles
+        };
+
+        // Count survey cells inside survey box for accurate IHO Coverage %
+        const SURVEY_BOX = { minX: -26, maxX: 26, minZ: -22, maxZ: 26 };
+        for (let iz = 0; iz < COV_SIZE; iz++) {
+          const wz = (iz / (COV_SIZE - 1) * 2 - 1) * SEABED_EXTENT;
+          for (let ix = 0; ix < COV_SIZE; ix++) {
+            const wx = (ix / (COV_SIZE - 1) * 2 - 1) * SEABED_EXTENT;
+            if (
+              wx >= SURVEY_BOX.minX && wx <= SURVEY_BOX.maxX &&
+              wz >= SURVEY_BOX.minZ && wz <= SURVEY_BOX.maxZ
+            ) {
+              sim.totalSurveyCells++;
+            }
+          }
+        }
+
+        function paintBathymetrySwath(halfWidth) {
+          const u = sim.usv;
+          const fx = Math.sin(u.yaw), fz = Math.cos(u.yaw);
+          const rx = fz, rz = -fx;
+          const steps = Math.max(4, Math.ceil(halfWidth * 2.4));
+          let dirty = false;
+
+          for (let s = -steps; s <= steps; s++) {
+            const offset = (s / steps) * halfWidth;
+            for (let along = -0.8; along <= 0.8; along += 0.8) {
+              const wx = u.x + rx * offset + fx * along;
+              const wz = u.z + rz * offset + fz * along;
+              const ix = Math.round(((wx / (SEABED_EXTENT * 2)) + 0.5) * (COV_SIZE - 1));
+              const iz = Math.round(((wz / (SEABED_EXTENT * 2)) + 0.5) * (COV_SIZE - 1));
+              if (ix < 0 || ix >= COV_SIZE || iz < 0 || iz >= COV_SIZE) continue;
+              const k = iz * COV_SIZE + ix;
+              const prev = coverageData[k];
+              const edgeFade = 1.0 - Math.pow(Math.abs(s / steps), 4.0) * 0.45;
+              const next = Math.min(255, Math.max(prev, Math.round(255 * edgeFade)));
+              if (next !== prev) {
+                if (
+                  prev < 120 && next >= 120 &&
+                  wx >= SURVEY_BOX.minX && wx <= SURVEY_BOX.maxX &&
+                  wz >= SURVEY_BOX.minZ && wz <= SURVEY_BOX.maxZ
+                ) {
+                  sim.coveredCells++;
+                }
+                coverageData[k] = next;
+                dirty = true;
+              }
+            }
+          }
+
+          if (dirty) {
+            gl.bindTexture(gl.TEXTURE_2D, coverageTex);
+            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, COV_SIZE, COV_SIZE, gl.RED, gl.UNSIGNED_BYTE, coverageData);
+            sim.coveragePct = Math.min(100, (sim.coveredCells / Math.max(1, sim.totalSurveyCells)) * 100);
+          }
+        }
+
+        // Pre-seed initial partial survey track onto the seamount flank so CUDA bathymetry contours shine immediately
+        (function seedInitialTrack() {
+          for (let z = -22; z <= -4; z += 0.65) {
+            sim.usv.x = -20;
+            sim.usv.z = z;
+            sim.usv.yaw = 0;
+            paintBathymetrySwath(11.5);
+            sim.ekfTrail.push([-20, 0.28, z]);
+          }
+          for (let i = 0; i < 24; i++) {
+            sim.wakePts.push({
+              x: -20,
+              z: -4 - i * 0.65,
+              age: i / 24,
+              intensity: 0.9,
+            });
+          }
+        })();
+
+        // Spawn COLREGS crossing vessel right onto an intersecting starboard crossing course
+        function setupColregsEncounter() {
+          const u = sim.usv;
+          const fx = Math.sin(u.yaw), fz = Math.cos(u.yaw);
+          const stbdX = -fz, stbdZ = fx; // Starboard (-X local)
+          // Place crossing vessel 22m ahead + 18m to starboard, heading across our bow (Rule 15: USV is Give-Way!)
+          sim.traffic.x = u.x + fx * 19 + stbdX * 20;
+          sim.traffic.z = u.z + fz * 19 + stbdZ * 20;
+          sim.traffic.yaw = Math.atan2(-stbdX * 0.95 - fx * 0.15, -stbdZ * 0.95 - fz * 0.15);
+          sim.traffic.speed = 2.45;
+        }
+
+        function setScenario(name) {
+          sim.scenario = name;
+          sim.scenarioTimer = 0;
+          document.querySelectorAll("[data-scenario]").forEach((b) => {
+            b.classList.toggle("is-active", b.dataset.scenario === name);
+          });
+          if (name === "survey" || name === "auto") {
+            sim.soc = Math.max(sim.soc, 82);
+            sim.commMode = "RADIO";
+            sim.usv.anchorDepth = 0;
+          } else if (name === "colregs") {
+            sim.soc = Math.max(sim.soc, 78);
+            sim.commMode = "RADIO";
+            sim.usv.anchorDepth = 0;
+            setupColregsEncounter();
+          } else if (name === "lowbatt") {
+            sim.soc = 52;
+            sim.commMode = "RADIO";
+            sim.usv.anchorDepth = 0;
+          } else if (name === "lostcomms") {
+            sim.soc = Math.max(sim.soc, 74);
+            sim.usv.anchorDepth = 0;
+          } else if (name === "estop") {
+            sim.usv.targetSpeed = 0;
+          }
+        }
+
+        function wrapAngle(a) {
+          while (a > PI) a -= TAU;
+          while (a < -PI) a += TAU;
+          return a;
+        }
+
+        function stepSimulation(dt) {
+          sim.time += dt;
+          sim.scenarioTimer += dt;
+          sim.lidarAngle = (sim.lidarAngle + dt * 5.6) % TAU;
+          sim.radarAngle = (sim.radarAngle + dt * 2.1) % TAU;
+
+          const u = sim.usv;
+          const tr = sim.traffic;
+
+          // Auto-cycle cinematic choreography through all subsystems
+          let activeMode = sim.scenario;
+          if (sim.scenario === "auto") {
+            const cycle = sim.scenarioTimer % 52;
+            if (cycle < 14) {
+              activeMode = "survey";
+            } else if (cycle < 28) {
+              if (cycle - dt < 14) setupColregsEncounter();
+              activeMode = "colregs";
+            } else if (cycle < 38) {
+              activeMode = "lowbatt_demo";
+            } else if (cycle < 46) {
+              activeMode = "lostcomms";
+            } else {
+              activeMode = "survey";
+              sim.soc = lerp(sim.soc, 86, dt * 1.4);
+            }
+          }
+
+          // --- Power Management (Diagram 6) ---
+          if (activeMode === "lowbatt") {
+            sim.soc = Math.max(14.5, sim.soc - dt * 2.4);
+          } else if (activeMode === "lowbatt_demo") {
+            // Smoothly step down through Economy -> Low Power -> Critical
+            sim.soc = Math.max(17.5, sim.soc - dt * 6.8);
+          } else if (activeMode !== "estop") {
+            sim.soc = Math.max(25, sim.soc - dt * 0.08);
+          }
+
+          if (sim.soc > 60) {
+            sim.powerMode = "NORMAL";
+            sim.sonarMode = "MBES";
+          } else if (sim.soc > 40) {
+            sim.powerMode = "ECONOMY";
+            sim.sonarMode = "MBES";
+          } else if (sim.soc > 20) {
+            sim.powerMode = "LOW POWER";
+            sim.sonarMode = "SBES"; // Diagram 6: Disable MBES -> SBES Only
+          } else {
+            sim.powerMode = "CRITICAL";
+            sim.sonarMode = "OFF";
+          }
+
+          // --- Communication & Telemetry (Diagram 7) ---
+          if (activeMode === "lostcomms") {
+            const t = sim.scenario === "auto" ? (sim.scenarioTimer % 52) - 38 : sim.scenarioTimer;
+            if (t < 2.5) sim.commMode = "CELLULAR";
+            else if (t < 4.8) sim.commMode = "DEGRADED";
+            else sim.commMode = "LOST";
+          } else {
+            const distShore = Math.hypot(u.x - SHORE_STATION[0], u.z - SHORE_STATION[1]);
+            sim.commMode = distShore > 76 ? "CELLULAR" : "RADIO";
+          }
+
+          // --- Crossing Traffic Vessel Kinematics ---
+          tr.x += Math.sin(tr.yaw) * tr.speed * dt;
+          tr.z += Math.cos(tr.yaw) * tr.speed * dt;
+          // Loop traffic vessel cleanly if far away during normal survey
+          if (Math.hypot(tr.x, tr.z) > 64 && activeMode !== "colregs") {
+            tr.yaw = wrapAngle(Math.atan2(-tr.x, -tr.z) + 0.35);
+          }
+
+          // --- Collision Risk & COLREGS CPA / TCPA Analysis (Diagram 5) ---
+          const relX = tr.x - u.x;
+          const relZ = tr.z - u.z;
+          const distT = Math.hypot(relX, relZ);
+          const uVx = Math.sin(u.yaw) * u.speed, uVz = Math.cos(u.yaw) * u.speed;
+          const tVx = Math.sin(tr.yaw) * tr.speed, tVz = Math.cos(tr.yaw) * tr.speed;
+          const dVx = tVx - uVx, dVz = tVz - uVz;
+          const dv2 = dVx * dVx + dVz * dVz + 0.0001;
+          const tcpa = clamp(-(relX * dVx + relZ * dVz) / dv2, 0, 25);
+          const cpaX = relX + dVx * tcpa;
+          const cpaZ = relZ + dVz * tcpa;
+          sim.cpaDist = Math.hypot(cpaX, cpaZ);
+
+          const colregsTrigger =
+            activeMode !== "estop" &&
+            distT < 30.0 &&
+            (sim.cpaDist < 11.5 || distT < 14.0) &&
+            tcpa > 0.1;
+
+          // --- Mission State Machine & Guidance (Diagrams 2, 5, 6, 8) ---
+          let goalX = SURVEY_LINES[u.wpIndex][0];
+          let goalZ = SURVEY_LINES[u.wpIndex][1];
+          let desiredYaw = u.yaw;
+          let maxSpeed =
+            sim.powerMode === "NORMAL" ? 3.5 :
+            sim.powerMode === "ECONOMY" ? 2.6 :
+            sim.powerMode === "LOW POWER" ? 1.9 : 2.8;
+
+          sim.colregsActive = false;
+          sim.avoidPath = [];
+
+          if (activeMode === "estop") {
+            sim.missionState = "EMERGENCY STOP";
+            sim.missionDetail = "Motors killed · Anchor deployed · Distress beacon ON";
+            sim.severity = "CRITICAL";
+            sim.sonarMode = "OFF";
+            u.targetSpeed = 0;
+            const depthNow = Math.abs(getSeabedDepth(u.x, u.z));
+            u.anchorDepth = Math.min(depthNow - 0.5, u.anchorDepth + dt * 3.8);
+          } else if (sim.powerMode === "CRITICAL") {
+            goalX = HOME_POS[0];
+            goalZ = HOME_POS[1];
+            const distHome = Math.hypot(goalX - u.x, goalZ - u.z);
+            if (distHome < 4.5) {
+              sim.missionState = "STATION KEEP";
+              sim.missionDetail = "Arrived at Home Base · Holding station (Low Power)";
+              sim.severity = "WARNING";
+              u.targetSpeed = 0.25;
+            } else {
+              sim.missionState = "RETURN TO BASE";
+              sim.missionDetail = "Battery <20% · RTB direct route to Shore Station";
+              sim.severity = "ERROR";
+              u.targetSpeed = maxSpeed;
+            }
+            desiredYaw = Math.atan2(goalX - u.x, goalZ - u.z);
+          } else if (colregsTrigger) {
+            sim.colregsActive = true;
+            sim.missionState = "COLREGS AVOIDANCE";
+            sim.missionDetail = "MOOS-IvP BHV_AvoidObstacle (Priority 200) · Starboard Give-Way";
+            sim.severity = "WARNING";
+            sim.colregsRule = "HIGH · GIVE WAY";
+            // Starboard alteration of course (COLREGS Rule 15/16) passing astern of crossing vessel
+            const baseYaw = Math.atan2(goalX - u.x, goalZ - u.z);
+            desiredYaw = wrapAngle(baseYaw - 0.85);
+            u.targetSpeed = maxSpeed * 0.72;
+            // Compute visual avoidance arc for 3D overlay
+            for (let k = 0; k <= 12; k++) {
+              const s = k / 12;
+              const ang = lerp(desiredYaw, baseYaw, s * s);
+              const px = u.x + Math.sin(ang) * (s * 16);
+              const pz = u.z + Math.cos(ang) * (s * 16);
+              sim.avoidPath.push([px, pz]);
+            }
+          } else {
+            sim.colregsRule = distT < 34 ? "MED · TRACKING" : "LOW · MONITOR";
+            if (sim.commMode === "LOST") {
+              sim.missionState = "AUTONOMOUS MODE";
+              sim.missionDetail = "Comms lost · Continuing safe survey autonomously";
+              sim.severity = "WARNING";
+            } else if (sim.powerMode === "LOW POWER") {
+              sim.missionState = "LOW POWER SURVEY";
+              sim.missionDetail = "Battery 20–40% · MBES disabled, SBES single-beam active";
+              sim.severity = "WARNING";
+            } else if (sim.powerMode === "ECONOMY") {
+              sim.missionState = "ECONOMY SURVEY";
+              sim.missionDetail = "Battery 40–60% · Reduced speed & sensor refresh";
+              sim.severity = "OK";
+            } else {
+              sim.missionState = "SURVEY MODE";
+              sim.missionDetail = "Executing parallel IHO multibeam bathymetry lines";
+              sim.severity = "OK";
+            }
+
+            if (Math.hypot(goalX - u.x, goalZ - u.z) < 3.6) {
+              u.wpIndex = (u.wpIndex + 1) % SURVEY_LINES.length;
+              goalX = SURVEY_LINES[u.wpIndex][0];
+              goalZ = SURVEY_LINES[u.wpIndex][1];
+            }
+            desiredYaw = Math.atan2(goalX - u.x, goalZ - u.z);
+            u.targetSpeed = maxSpeed;
+          }
+
+          // Smooth rudder & differential thruster control
+          const yawErr = wrapAngle(desiredYaw - u.yaw);
+          const turnRate = clamp(yawErr * 1.45, -0.95, 0.95);
+          if (activeMode !== "estop") {
+            u.yaw = wrapAngle(u.yaw + turnRate * dt);
+          }
+          u.speed = lerp(u.speed, u.targetSpeed, clamp(dt * 1.8, 0, 1));
+          u.x += Math.sin(u.yaw) * u.speed * dt;
+          u.z += Math.cos(u.yaw) * u.speed * dt;
+
+          // Keep gently inside geofence unless RTB
+          if (sim.powerMode !== "CRITICAL") {
+            u.x = clamp(u.x, GEOFENCE.minX + 2, GEOFENCE.maxX - 2);
+            u.z = clamp(u.z, GEOFENCE.minZ + 2, GEOFENCE.maxZ - 2);
+          }
+
+          // Thruster differential RPM
+          const baseThr = activeMode === "estop" ? 0 : clamp(u.speed / 3.8, 0.08, 1.0);
+          u.thrL = activeMode === "estop" ? 0 : clamp(baseThr - turnRate * 0.32, 0.05, 1.0);
+          u.thrR = activeMode === "estop" ? 0 : clamp(baseThr + turnRate * 0.32, 0.05, 1.0);
+          u.propPhaseL = (u.propPhaseL + dt * u.thrL * 24.0) % TAU;
+          u.propPhaseR = (u.propPhaseR + dt * u.thrR * 24.0) % TAU;
+
+          // --- 4-Point Gerstner 6-DOF Buoyancy Sampling (USV) ---
+          const fx = Math.sin(u.yaw), fz = Math.cos(u.yaw);
+          const rx = fz, rz = -fx; // Port (+X local)
+          const hBowP = getWaveHeight(u.x + fx * 1.7 + rx * 0.72, u.z + fz * 1.7 + rz * 0.72, sim.time, sim.seaScale);
+          const hBowS = getWaveHeight(u.x + fx * 1.7 - rx * 0.72, u.z + fz * 1.7 - rz * 0.72, sim.time, sim.seaScale);
+          const hStnP = getWaveHeight(u.x - fx * 1.7 + rx * 0.72, u.z - fz * 1.7 + rz * 0.72, sim.time, sim.seaScale);
+          const hStnS = getWaveHeight(u.x - fx * 1.7 - rx * 0.72, u.z - fz * 1.7 - rz * 0.72, sim.time, sim.seaScale);
+
+          const targetY = (hBowP + hBowS + hStnP + hStnS) * 0.25 + 0.16;
+          const targetPitch = Math.atan2(((hBowP + hBowS) - (hStnP + hStnS)) * 0.5, 3.4);
+          const targetRoll = Math.atan2(((hBowP + hStnP) - (hBowS + hStnS)) * 0.5, 1.44) - turnRate * 0.07;
+
+          u.y = lerp(u.y, targetY, clamp(dt * 8.0, 0, 1));
+          u.pitch = lerp(u.pitch, targetPitch, clamp(dt * 6.5, 0, 1));
+          u.roll = lerp(u.roll, targetRoll, clamp(dt * 6.5, 0, 1));
+
+          // Build exact right-handed 6-DOF orthonormal pose matrix for USV
+          const cp = Math.cos(u.pitch), sp = Math.sin(u.pitch);
+          const cr = Math.cos(u.roll), sr = Math.sin(u.roll);
+          const fwd3 = v3Norm([fx * cp, sp, fz * cp]);
+          const rawRight = [rx * cr, -sr, rz * cr];
+          const up3 = v3Norm(v3Cross(fwd3, rawRight));
+          const right3 = v3Norm(v3Cross(up3, fwd3));
+          u.fwd = fwd3;
+          u.right = right3;
+          u.up = up3;
+          u.poseMat = mat4FromBasis([u.x, u.y, u.z], right3, up3, fwd3);
+
+          // 4-Point Buoyancy for Traffic Vessel
+          const tfx = Math.sin(tr.yaw), tfz = Math.cos(tr.yaw);
+          const trx = tfz, trz = -tfx;
+          const thF = getWaveHeight(tr.x + tfx * 3.2, tr.z + tfz * 3.2, sim.time, sim.seaScale);
+          const thB = getWaveHeight(tr.x - tfx * 3.2, tr.z - tfz * 3.2, sim.time, sim.seaScale);
+          const thL = getWaveHeight(tr.x + trx * 1.1, tr.z + trz * 1.1, sim.time, sim.seaScale);
+          const thR = getWaveHeight(tr.x - trx * 1.1, tr.z - trz * 1.1, sim.time, sim.seaScale);
+          tr.y = (thF + thB + thL + thR) * 0.25 + 0.14;
+          const tPitch = Math.atan2(thF - thB, 6.4);
+          const tRoll = Math.atan2(thL - thR, 2.2);
+          const tFwd = v3Norm([tfx * Math.cos(tPitch), Math.sin(tPitch), tfz * Math.cos(tPitch)]);
+          const tUp = v3Norm(v3Cross(tFwd, [trx * Math.cos(tRoll), -Math.sin(tRoll), trz * Math.cos(tRoll)]));
+          const tRight = v3Norm(v3Cross(tUp, tFwd));
+          tr.fwd = tFwd;
+          tr.poseMat = mat4FromBasis([tr.x, tr.y, tr.z], tRight, tUp, tFwd);
+
+          // --- Paint Live CUDA Bathymetry Grid ---
+          const depthUnderUsv = Math.abs(getSeabedDepth(u.x, u.z));
+          if (sim.sonarMode === "MBES") {
+            paintBathymetrySwath(clamp(depthUnderUsv * 0.92, 6.5, 14.0));
+          } else if (sim.sonarMode === "SBES") {
+            paintBathymetrySwath(1.6);
+          }
+
+          // --- Wake Ring Buffer & EKF Trail ---
+          const sternX = u.x - fx * 2.0, sternZ = u.z - fz * 2.0;
+          const lastW = sim.wakePts[0];
+          if (!lastW || Math.hypot(sternX - lastW.x, sternZ - lastW.z) > 0.72) {
+            sim.wakePts.unshift({
+              x: sternX,
+              z: sternZ,
+              age: 0,
+              intensity: clamp(u.speed / 2.6, 0.08, 1.0),
+            });
+            if (sim.wakePts.length > 32) sim.wakePts.pop();
+          }
+          for (const w of sim.wakePts) {
+            w.age = Math.min(1.0, w.age + dt * 0.085);
+          }
+
+          const lastE = sim.ekfTrail[sim.ekfTrail.length - 1];
+          if (!lastE || Math.hypot(u.x - lastE[0], u.z - lastE[2]) > 0.85) {
+            sim.ekfTrail.push([u.x, u.y + 0.35, u.z]);
+            if (sim.ekfTrail.length > 220) sim.ekfTrail.shift();
+          }
+
+          // --- Sea Spray & Thruster Bubble Particles ---
+          if (u.speed > 0.6) {
+            for (let side = -1; side <= 1; side += 2) {
+              // Bow spray mist
+              if (Math.random() < 0.45 * sim.seaScale) {
+                const bp = transformPoint(u.poseMat, [side * 0.72, 0.14, 1.95]);
+                sim.particles.push({
+                  x: bp[0], y: bp[1], z: bp[2],
+                  vx: (side * rx * 1.1 + (Math.random() - 0.5) * 0.8),
+                  vy: 0.7 + Math.random() * 0.95 * sim.seaScale,
+                  vz: (side * rz * 1.1 + (Math.random() - 0.5) * 0.8),
+                  age: 0, life: 0.75 + Math.random() * 0.4,
+                  type: 0, // spray
+                });
+              }
+              // Underwater thruster cavitation bubbles
+              if (Math.random() < 0.75) {
+                const tp = transformPoint(u.poseMat, [side * 0.68, -0.32, -2.05]);
+                sim.particles.push({
+                  x: tp[0], y: tp[1], z: tp[2],
+                  vx: -fx * (1.8 + Math.random()) + (Math.random() - 0.5) * 0.4,
+                  vy: 0.18 + Math.random() * 0.25,
+                  vz: -fz * (1.8 + Math.random()) + (Math.random() - 0.5) * 0.4,
+                  age: 0, life: 1.3 + Math.random() * 0.7,
+                  type: 1, // bubble
+                });
+              }
+            }
+          }
+          for (let i = sim.particles.length - 1; i >= 0; i--) {
+            const p = sim.particles[i];
+            p.age += dt;
+            if (p.age >= p.life) {
+              sim.particles.splice(i, 1);
+              continue;
+            }
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.z += p.vz * dt;
+            if (p.type === 0) {
+              p.vy -= 3.6 * dt; // gravity on spray
+            } else {
+              p.y = Math.min(-0.08, p.y); // bubbles rise to surface
+            }
+          }
+
+          // --- Smooth Cinematic Camera Controller ---
+          let desiredEye, desiredTarget;
+          if (sim.camMode === "chase") {
+            const colregsFrame = sim.colregsActive || sim.scenario === "colregs";
+            const camBack = colregsFrame ? 11.8 : 9.4;
+            const camSide = colregsFrame ? 5.6 : -4.2;
+            const camLift = colregsFrame ? 4.2 : 3.2;
+            desiredEye = [
+              u.x - fx * camBack + rx * camSide,
+              Math.max(u.y + camLift, getWaveHeight(u.x - fx * camBack, u.z - fz * camBack, sim.time, sim.seaScale) + 1.8),
+              u.z - fz * camBack + rz * camSide,
+            ];
+            if (colregsFrame && Math.hypot(tr.x - u.x, tr.z - u.z) < 42) {
+              desiredTarget = [
+                lerp(u.x + fx * 3.0, tr.x, 0.36),
+                u.y + 0.75,
+                lerp(u.z + fz * 3.0, tr.z, 0.36),
+              ];
+            } else {
+              desiredTarget = [u.x + fx * 3.2, u.y + 0.55, u.z + fz * 3.2];
+            }
+          } else if (sim.camMode === "underwater") {
+            desiredEye = [
+              u.x - fx * 6.4 - rx * 7.8,
+              Math.max(getSeabedDepth(u.x, u.z) + 2.2, -5.6),
+              u.z - fz * 6.4 - rz * 7.8,
+            ];
+            desiredTarget = [u.x + fx * 1.2, -3.4, u.z + fz * 1.2];
+          } else if (sim.camMode === "bow") {
+            const bowEye = transformPoint(u.poseMat, [-2.4, 1.9, 4.3]);
+            const bowTgt = transformPoint(u.poseMat, [0.0, 0.75, -0.3]);
+            desiredEye = bowEye;
+            desiredTarget = bowTgt;
+          } else if (sim.camMode === "overhead") {
+            desiredEye = [u.x - fx * 14.0, 44.0, u.z - fz * 14.0];
+            desiredTarget = [u.x + fx * 3.0, -2.0, u.z + fz * 3.0];
+          } else {
+            // Free Orbit around USV
+            const cp = Math.cos(sim.orbitPitch), sp = Math.sin(sim.orbitPitch);
+            desiredEye = [
+              u.x + Math.sin(sim.orbitYaw) * cp * sim.orbitDist,
+              u.y + sp * sim.orbitDist + 0.6,
+              u.z + Math.cos(sim.orbitYaw) * cp * sim.orbitDist,
+            ];
+            desiredTarget = [u.x, u.y + 0.5, u.z];
+          }
+
+          const camSmooth = sim.camMode === "orbit" ? 0.22 : clamp(dt * 3.4, 0.04, 0.2);
+          for (let k = 0; k < 3; k++) {
+            sim.camEye[k] = lerp(sim.camEye[k], desiredEye[k], camSmooth);
+            sim.camTarget[k] = lerp(sim.camTarget[k], desiredTarget[k], camSmooth);
+          }
+        }
+
+        // ============================================================
+        // 6. High-Detail PBR 3D Asset Rendering (USV, Traffic, Buoys, Shore)
+        // ============================================================
+        function drawPart(mesh, parentMat, localMat, albedo, metallic, roughness, emissive = [0, 0, 0]) {
+          const model = parentMat ? mat4Mul(parentMat, localMat) : localMat;
+          gl.uniformMatrix4fv(pbrU.uModel, false, model);
+          gl.uniform3fv(pbrU.uAlbedo, albedo);
+          gl.uniform1f(pbrU.uMetallic, metallic);
+          gl.uniform1f(pbrU.uRoughness, roughness);
+          gl.uniform3fv(pbrU.uEmissive, emissive);
+          gl.bindVertexArray(mesh.vao);
+          gl.drawElements(gl.TRIANGLES, mesh.count, mesh.type, 0);
+        }
+
+        function drawUSV() {
+          const M = sim.usv.poseMat;
+          const whiteHull = [0.91, 0.94, 0.96];
+          const orangeSafety = [0.95, 0.36, 0.06];
+          const darkCarbon = [0.10, 0.12, 0.15];
+          const marineAlum = [0.68, 0.74, 0.78];
+          const bronzeProp = [0.76, 0.56, 0.24];
+          const redKeel = [0.62, 0.14, 0.14];
+
+          // Twin sleek wave-piercing catamaran pontoons (+X port, -X starboard)
+          for (const side of [-1, 1]) {
+            const px = side * 0.72;
+            drawPart(meshes.usvPontoon, M, mat4TRS(px, 0.0, 0.0, 0, 0, 0, 1, 1, 1), whiteHull, 0.08, 0.24);
+            // High-visibility safety orange survey stripe along upper hull
+            drawPart(meshes.box, M, mat4TRS(px + side * 0.22, 0.18, -0.15, 0, 0, 0, 0.14, 0.11, 2.75), orangeSafety, 0.05, 0.32);
+            // Heavy-duty black rubber rub-rail along outer chine
+            drawPart(meshes.box, M, mat4TRS(px + side * 0.28, 0.08, -0.18, 0, 0, 0, 0.06, 0.06, 2.9), darkCarbon, 0.05, 0.82);
+
+            // Stern Ducted Electric Thrusters (2x 500W) + Spinning Propellers
+            drawPart(meshes.cyl, M, mat4TRS(px, -0.26, -1.96, PI * 0.5, 0, 0, 0.28, 0.24, 0.28), darkCarbon, 0.5, 0.4);
+            drawPart(meshes.box, M, mat4TRS(px, -0.12, -1.92, 0, 0, 0, 0.05, 0.28, 0.16), marineAlum, 0.7, 0.35);
+            const pPhase = side > 0 ? sim.usv.propPhaseL : sim.usv.propPhaseR;
+            for (let b = 0; b < 3; b++) {
+              const ang = pPhase + (b * TAU) / 3;
+              drawPart(
+                meshes.box,
+                M,
+                mat4TRS(px, -0.26, -2.02, 0, 0, ang, 0.22, 0.045, 0.025),
+                bronzeProp,
+                0.85,
+                0.28
+              );
+            }
+
+            // Stainless Safety Grab Rails along bridge deck
+            drawPart(meshes.cyl, M, mat4TRS(px * 0.92, 0.47, -0.15, PI * 0.5, 0, 0, 0.032, 2.15, 0.032), marineAlum, 0.92, 0.22);
+            for (const rz of [-1.15, 0.0, 0.85]) {
+              drawPart(meshes.cyl, M, mat4TRS(px * 0.92, 0.37, rz, 0, 0, 0, 0.03, 0.22, 0.03), marineAlum, 0.92, 0.22);
+            }
+          }
+
+          // Cross-deck Structural Aluminum / Carbon Bridge Platform
+          drawPart(meshes.box, M, mat4TRS(0, 0.26, -0.18, 0, 0, 0, 1.38, 0.11, 2.38), marineAlum, 0.65, 0.38);
+          // Main Weatherproof Autonomy Compute & 48V 10kWh Battery Bay
+          drawPart(meshes.box, M, mat4TRS(0, 0.44, -0.22, 0, 0, 0, 0.96, 0.30, 1.72), whiteHull, 0.1, 0.28);
+          drawPart(meshes.box, M, mat4TRS(0, 0.60, -0.22, 0, 0, 0, 0.86, 0.05, 1.56), orangeSafety, 0.08, 0.32);
+          // CUDA Heat-Sink Cooling Fins on aft deck
+          for (let i = -3; i <= 3; i++) {
+            drawPart(meshes.box, M, mat4TRS(i * 0.11, 0.52, -1.12, 0, 0, 0, 0.025, 0.14, 0.22), darkCarbon, 0.85, 0.32);
+          }
+
+          // Keel-Mounted Submerged Hydrographic Sensor Pod (MBES + DVL)
+          drawPart(meshes.box, M, mat4TRS(0, -0.10, 0.32, 0, 0, 0, 0.10, 0.62, 0.32), darkCarbon, 0.5, 0.45);
+          // MBES 512-beam sonar array (distinctive red/black acoustic fairing per URDF)
+          drawPart(meshes.cyl, M, mat4TRS(0, -0.42, 0.48, 0, 0, PI * 0.5, 0.22, 0.56, 0.22), redKeel, 0.2, 0.35);
+          // DVL 4-beam acoustic velocity pod
+          drawPart(meshes.cyl, M, mat4TRS(0, -0.44, -0.05, 0, 0, 0, 0.24, 0.18, 0.24), darkCarbon, 0.4, 0.4);
+
+          // Aerodynamic Carbon Sensor Arch / Mast
+          for (const side of [-1, 1]) {
+            drawPart(meshes.box, M, mat4TRS(side * 0.54, 0.95, -0.15, -0.18, 0, side * 0.14, 0.07, 0.88, 0.12), darkCarbon, 0.35, 0.42);
+          }
+          drawPart(meshes.box, M, mat4TRS(0, 1.38, -0.22, 0, 0, 0, 1.06, 0.08, 0.22), darkCarbon, 0.35, 0.42);
+
+          // Spinning 3D LiDAR Dome (Amber Laser Band)
+          drawPart(meshes.cyl, M, mat4TRS(0, 1.50, -0.18, 0, sim.lidarAngle, 0, 0.16, 0.14, 0.16), darkCarbon, 0.6, 0.25);
+          drawPart(
+            meshes.cyl,
+            M,
+            mat4TRS(0, 1.50, -0.18, 0, sim.lidarAngle, 0, 0.168, 0.04, 0.168),
+            [0.95, 0.55, 0.1],
+            0.2,
+            0.2,
+            [1.6, 0.78, 0.12]
+          );
+
+          // Spinning Marine X-Band Radar Bar
+          drawPart(meshes.cyl, M, mat4TRS(0, 1.63, -0.22, 0, 0, 0, 0.10, 0.14, 0.10), whiteHull, 0.1, 0.3);
+          drawPart(meshes.box, M, mat4TRS(0, 1.72, -0.22, 0, sim.radarAngle, 0, 0.68, 0.06, 0.09), whiteHull, 0.1, 0.25);
+
+          // Gimbaled Forward Optical / Thermal Camera (YOLOv8)
+          drawPart(meshes.sphere, M, mat4TRS(0, 0.86, 0.82, 0, 0, 0, 0.24, 0.24, 0.24), darkCarbon, 0.5, 0.22);
+          drawPart(
+            meshes.cyl,
+            M,
+            mat4TRS(0, 0.86, 0.93, PI * 0.5, 0, 0, 0.09, 0.06, 0.09),
+            [0.05, 0.15, 0.25],
+            0.8,
+            0.1,
+            [0.15, 0.75, 0.95]
+          );
+          drawPart(meshes.cyl, M, mat4TRS(0, 0.68, 0.78, 0, 0, 0, 0.08, 0.22, 0.08), marineAlum, 0.8, 0.3);
+
+          // Dual GPS-RTK Mushroom Antennas (Port & Starboard Arch)
+          for (const side of [-1, 1]) {
+            drawPart(meshes.cyl, M, mat4TRS(side * 0.46, 1.48, -0.22, 0, 0, 0, 0.03, 0.14, 0.03), marineAlum, 0.8, 0.3);
+            drawPart(meshes.cyl, M, mat4TRS(side * 0.46, 1.57, -0.22, 0, 0, 0, 0.16, 0.07, 0.16), whiteHull, 0.08, 0.28);
+          }
+
+          // Radio (15-20km) & 4G/LTE Whip Antennas
+          drawPart(meshes.cyl, M, mat4TRS(0.32, 1.88, -0.28, 0, 0, 0, 0.022, 0.95, 0.022), darkCarbon, 0.3, 0.45);
+          drawPart(meshes.cyl, M, mat4TRS(-0.32, 1.76, -0.28, 0, 0, 0, 0.020, 0.68, 0.020), darkCarbon, 0.3, 0.45);
+
+          // COLREGs Navigation Lights & Emergency Strobe Beacon
+          // Port = RED (+X), Starboard = GREEN (-X), Stern = WHITE (-Z)
+          drawPart(meshes.sphere, M, mat4TRS(0.56, 1.38, -0.10, 0, 0, 0, 0.085, 0.085, 0.085), [1, 0.2, 0.2], 0, 0.2, [3.2, 0.25, 0.2]);
+          drawPart(meshes.sphere, M, mat4TRS(-0.56, 1.38, -0.10, 0, 0, 0, 0.085, 0.085, 0.085), [0.1, 1, 0.4], 0, 0.2, [0.15, 3.0, 0.8]);
+          drawPart(meshes.sphere, M, mat4TRS(0, 0.68, -1.25, 0, 0, 0, 0.075, 0.075, 0.075), [1, 1, 0.95], 0, 0.2, [2.2, 2.2, 1.9]);
+
+          // Masthead Status / Emergency Strobe
+          const strobeFlash = Math.sin(sim.time * (sim.severity === "CRITICAL" ? 16.0 : 5.5)) > 0.0;
+          const beaconEmissive =
+            sim.severity === "CRITICAL"
+              ? strobeFlash ? [4.5, 0.25, 0.2] : [0.5, 0.05, 0.05]
+              : sim.severity === "WARNING" || sim.severity === "ERROR"
+                ? strobeFlash ? [3.6, 2.1, 0.2] : [0.4, 0.2, 0.05]
+                : [0.25, 2.2, 1.6];
+          drawPart(meshes.sphere, M, mat4TRS(0, 1.82, -0.22, 0, 0, 0, 0.095, 0.095, 0.095), [1, 1, 1], 0, 0.15, beaconEmissive);
+
+          // Deployed Emergency Anchor & Chain (Diagram 8: E-Stop)
+          if (sim.usv.anchorDepth > 0.1) {
+            const ad = sim.usv.anchorDepth;
+            const bowWorld = transformPoint(M, [0, 0.0, 1.55]);
+            drawPart(meshes.cyl, null, mat4TRS(bowWorld[0], bowWorld[1] - ad * 0.5, bowWorld[2], 0, 0, 0, 0.04, ad, 0.04), darkCarbon, 0.85, 0.5);
+            drawPart(meshes.box, null, mat4TRS(bowWorld[0], bowWorld[1] - ad, bowWorld[2], 0, 0.4, 0, 0.55, 0.18, 0.22), darkCarbon, 0.85, 0.45);
+          }
+        }
+
+        function drawTrafficVessel() {
+          const M = sim.traffic.poseMat;
+          drawPart(meshes.trafficHull, M, mat4TRS(0, 0, 0, 0, 0, 0, 1, 1, 1), [0.92, 0.94, 0.96], 0.06, 0.28);
+          // Navy hull accent band
+          drawPart(meshes.box, M, mat4TRS(0, 0.36, -0.35, 0, 0, 0, 2.48, 0.24, 5.2), [0.09, 0.20, 0.36], 0.1, 0.35);
+          // Wheelhouse cabin
+          drawPart(meshes.box, M, mat4TRS(0, 1.38, -0.65, 0, 0, 0, 1.82, 1.15, 2.75), [0.95, 0.96, 0.97], 0.05, 0.26);
+          // Tinted wrap-around bridge windshield
+          drawPart(meshes.box, M, mat4TRS(0, 1.56, 0.74, -0.22, 0, 0, 1.72, 0.52, 0.08), [0.05, 0.12, 0.18], 0.85, 0.08);
+          // Cabin roof radar mast
+          drawPart(meshes.cyl, M, mat4TRS(0, 2.25, -0.75, 0, 0, 0, 0.09, 0.65, 0.09), [0.85, 0.88, 0.90], 0.7, 0.3);
+          drawPart(meshes.box, M, mat4TRS(0, 2.58, -0.75, 0, sim.radarAngle * 0.7, 0, 0.95, 0.08, 0.12), [0.95, 0.96, 0.97], 0.1, 0.3);
+          // Port/Starboard Nav Lights
+          drawPart(meshes.sphere, M, mat4TRS(0.95, 1.98, 0.2, 0, 0, 0, 0.13, 0.13, 0.13), [1, 0.2, 0.2], 0, 0.2, [3.0, 0.2, 0.2]);
+          drawPart(meshes.sphere, M, mat4TRS(-0.95, 1.98, 0.2, 0, 0, 0, 0.13, 0.13, 0.13), [0.2, 1, 0.4], 0, 0.2, [0.2, 2.8, 0.6]);
+        }
+
+        function drawBuoysAndShoreStation() {
+          // 4 Floating Geofence Corner Navigation Buoys
+          const corners = [
+            [GEOFENCE.minX, GEOFENCE.minZ, [0.88, 0.18, 0.16], [2.2, 0.25, 0.2]],
+            [GEOFENCE.maxX, GEOFENCE.minZ, [0.12, 0.65, 0.32], [0.2, 2.2, 0.6]],
+            [GEOFENCE.minX, GEOFENCE.maxZ, [0.92, 0.68, 0.12], [2.4, 1.7, 0.2]],
+            [GEOFENCE.maxX, GEOFENCE.maxZ, [0.92, 0.68, 0.12], [2.4, 1.7, 0.2]],
+          ];
+          const blink = Math.sin(sim.time * 3.2) > 0.3;
+          for (const [bx, bz, col, glow] of corners) {
+            const by = getWaveHeight(bx, bz, sim.time, sim.seaScale);
+            const tilt = Math.sin(sim.time * 1.8 + bx) * 0.11;
+            const bm = mat4TRS(bx, by, bz, tilt, 0, tilt * 0.7, 1, 1, 1);
+            drawPart(meshes.cyl, bm, mat4TRS(0, 0.15, 0, 0, 0, 0, 1.25, 0.55, 1.25), col, 0.1, 0.4);
+            drawPart(meshes.cone, bm, mat4TRS(0, 0.95, 0, 0, 0, 0, 0.68, 1.15, 0.68), col, 0.15, 0.38);
+            drawPart(meshes.sphere, bm, mat4TRS(0, 1.62, 0, 0, 0, 0, 0.20, 0.20, 0.20), [1, 1, 1], 0, 0.1, blink ? glow : [0.2, 0.2, 0.2]);
+          }
+
+          // Shore Operator Station & Telemetry Tower (at SHORE_STATION)
+          const [sx, sz] = SHORE_STATION;
+          const sm = mat4TRS(sx, 0, sz, 0, 0, 0, 1, 1, 1);
+          // Concrete/rock pier base rising above water
+          drawPart(meshes.box, sm, mat4TRS(0, 0.2, 0, 0, 0, 0, 12.0, 4.4, 8.5), [0.36, 0.39, 0.42], 0.05, 0.85);
+          // Operator Control Container Cabin
+          drawPart(meshes.box, sm, mat4TRS(-2.0, 3.6, -0.5, 0, 0, 0, 5.2, 2.6, 3.4), [0.88, 0.91, 0.94], 0.15, 0.42);
+          drawPart(meshes.box, sm, mat4TRS(-2.0, 3.8, 1.23, 0, 0, 0, 3.6, 1.0, 0.08), [0.06, 0.18, 0.28], 0.8, 0.12, [0.15, 0.55, 0.75]);
+          // High-Gain 15-20km Radio Telemetry Mast
+          drawPart(meshes.cyl, sm, mat4TRS(3.2, 6.4, 0.5, 0, 0, 0, 0.28, 8.6, 0.28), [0.74, 0.78, 0.82], 0.75, 0.35);
+          drawPart(meshes.sphere, sm, mat4TRS(3.2, 10.8, 0.5, 0, 0, 0, 0.42, 0.42, 0.42), [1, 1, 1], 0, 0.1, [0.3, 2.4, 3.0]);
+          // Home Base Docking Mooring Ring at HOME_POS
+          const hy = getWaveHeight(HOME_POS[0], HOME_POS[1], sim.time, sim.seaScale);
+          drawPart(meshes.cyl, null, mat4TRS(HOME_POS[0], hy + 0.08, HOME_POS[1], 0, 0, 0, 2.2, 0.22, 2.2), [0.15, 0.72, 0.45], 0.1, 0.45, [0.08, 0.55, 0.32]);
+        }
+
+        // ============================================================
+        // 7. Volumetric 3D Sensor Overlays & Particle Renderer
+        // ============================================================
+        function drawFxBatches(vp) {
+          gl.useProgram(fxProg);
+          gl.uniformMatrix4fv(fxU.uVP, false, vp);
+          gl.enable(gl.BLEND);
+          gl.depthMask(false);
+          gl.bindVertexArray(fxVao);
+
+          const u = sim.usv;
+          const tr = sim.traffic;
+          const triVerts = [];
+          const lineVerts = [];
+          const ptVerts = [];
+
+          const pushV = (arr, x, y, z, r, g, b, a) => {
+            arr.push(x, y, z, r, g, b, a);
+          };
+
+          // 1) Volumetric Underwater MBES 512-Beam Sonar Fan (Diagram 3)
+          if (sim.overlays.sonar && sim.sonarMode !== "OFF") {
+            const origin = transformPoint(u.poseMat, [0, -0.46, 0.48]);
+            const depthNow = Math.abs(getSeabedDepth(u.x, u.z));
+            const halfW = sim.sonarMode === "MBES" ? clamp(depthNow * 0.92, 6.5, 14.0) : 1.2;
+            const rays = sim.sonarMode === "MBES" ? 28 : 4;
+            const rx = u.right[0], rz = u.right[2];
+            const fx = u.fwd[0], fz = u.fwd[2];
+            const pulse = 0.7 + 0.3 * Math.sin(sim.time * 16.0);
+
+            for (let i = 0; i < rays; i++) {
+              const s0 = (i / rays) * 2 - 1;
+              const s1 = ((i + 1) / rays) * 2 - 1;
+              const x0 = origin[0] + rx * s0 * halfW;
+              const z0 = origin[2] + rz * s0 * halfW;
+              const y0 = getSeabedDepth(x0, z0) + 0.08;
+              const x1 = origin[0] + rx * s1 * halfW;
+              const z1 = origin[2] + rz * s1 * halfW;
+              const y1 = getSeabedDepth(x1, z1) + 0.08;
+
+              // Translucent volumetric fan sheet
+              const aTop = (sim.camMode === "underwater" ? 0.30 : 0.17) * pulse;
+              const aBot = (sim.camMode === "underwater" ? 0.42 : 0.24) * pulse;
+              pushV(triVerts, origin[0], origin[1], origin[2], 0.08, 0.92, 1.0, aTop);
+              pushV(triVerts, x0, y0, z0, 0.12, 0.98, 0.85, aBot);
+              pushV(triVerts, x1, y1, z1, 0.12, 0.98, 0.85, aBot);
+
+              // Individual acoustic beam rays + seafloor return glints
+              if (i % 2 === 0) {
+                pushV(lineVerts, origin[0], origin[1], origin[2], 0.15, 0.95, 1.0, 0.38);
+                pushV(lineVerts, x0, y0, z0, 0.18, 1.0, 0.84, 0.58);
+                pushV(ptVerts, x0, y0 + 0.12, z0, 0.35, 1.0, 0.92, 0.88);
+              }
+              // Animated downward 5 Hz acoustic wavefront arc
+              const waveFrac = (sim.time * 1.45) % 1.0;
+              const wx0 = lerp(origin[0], x0, waveFrac);
+              const wy0 = lerp(origin[1], y0, waveFrac);
+              const wz0 = lerp(origin[2], z0, waveFrac);
+              const wx1 = lerp(origin[0], x1, waveFrac);
+              const wy1 = lerp(origin[1], y1, waveFrac);
+              const wz1 = lerp(origin[2], z1, waveFrac);
+              pushV(lineVerts, wx0, wy0, wz0, 0.55, 1.0, 0.98, 0.72 * (1 - waveFrac * 0.4));
+              pushV(lineVerts, wx1, wy1, wz1, 0.55, 1.0, 0.98, 0.72 * (1 - waveFrac * 0.4));
+            }
+
+            // DVL 4-beam downward velocity lock beams
+            const dvl = transformPoint(u.poseMat, [0, -0.46, -0.05]);
+            for (const [dx, dz] of [[0.25, 0.25], [-0.25, 0.25], [0.25, -0.25], [-0.25, -0.25]]) {
+              const gx = dvl[0] + (rx * dx + fx * dz) * depthNow;
+              const gz = dvl[2] + (rz * dx + fz * dz) * depthNow;
+              const gy = getSeabedDepth(gx, gz) + 0.08;
+              pushV(lineVerts, dvl[0], dvl[1], dvl[2], 0.75, 0.45, 1.0, 0.32);
+              pushV(lineVerts, gx, gy, gz, 0.75, 0.45, 1.0, 0.48);
+            }
+          }
+
+          // 2) LiDAR 360° Scan Ring + YOLOv8 Vision Cone & 3D Target Bounding Box (Diagram 5)
+          if (sim.overlays.lidar) {
+            const lidarOrg = transformPoint(u.poseMat, [0, 1.52, -0.18]);
+            const ringR = 2.0 + ((sim.time * 14.0) % 24.0);
+            const ringAlpha = clamp(1.0 - ringR / 26.0, 0.05, 0.55);
+            const segs = 48;
+            for (let i = 0; i < segs; i++) {
+              const a0 = (i / segs) * TAU;
+              const a1 = ((i + 1) / segs) * TAU;
+              pushV(lineVerts, lidarOrg[0] + Math.cos(a0) * ringR, 0.35, lidarOrg[2] + Math.sin(a0) * ringR, 1.0, 0.66, 0.14, ringAlpha);
+              pushV(lineVerts, lidarOrg[0] + Math.cos(a1) * ringR, 0.35, lidarOrg[2] + Math.sin(a1) * ringR, 1.0, 0.66, 0.14, ringAlpha);
+            }
+
+            // Rotating LiDAR sweep ray
+            const lx = lidarOrg[0] + Math.cos(sim.lidarAngle) * 22.0;
+            const lz = lidarOrg[2] + Math.sin(sim.lidarAngle) * 22.0;
+            pushV(lineVerts, lidarOrg[0], lidarOrg[1], lidarOrg[2], 1.0, 0.72, 0.18, 0.65);
+            pushV(lineVerts, lx, 0.4, lz, 1.0, 0.72, 0.18, 0.08);
+
+            // YOLOv8 3D Wireframe Bounding Box on Traffic Vessel when in sensor range
+            const distT = Math.hypot(tr.x - u.x, tr.z - u.z);
+            if (distT < 38.0) {
+              const col = sim.colregsActive ? [1.0, 0.42, 0.16, 0.92] : [0.22, 0.95, 0.62, 0.72];
+              const bx = 1.45, byLo = -0.3, byHi = 2.75, bz = 4.35;
+              const corners = [
+                [-bx, byLo, -bz], [bx, byLo, -bz], [bx, byLo, bz], [-bx, byLo, bz],
+                [-bx, byHi, -bz], [bx, byHi, -bz], [bx, byHi, bz], [-bx, byHi, bz],
+              ].map((c) => transformPoint(tr.poseMat, c));
+              const edges = [
+                [0, 1], [1, 2], [2, 3], [3, 0],
+                [4, 5], [5, 6], [6, 7], [7, 4],
+                [0, 4], [1, 5], [2, 6], [3, 7],
+              ];
+              for (const [e0, e1] of edges) {
+                pushV(lineVerts, corners[e0][0], corners[e0][1], corners[e0][2], col[0], col[1], col[2], col[3]);
+                pushV(lineVerts, corners[e1][0], corners[e1][1], corners[e1][2], col[0], col[1], col[2], col[3]);
+              }
+              // Vision / Radar lock line from USV camera to target
+              const camOrg = transformPoint(u.poseMat, [0, 0.88, 0.92]);
+              pushV(lineVerts, camOrg[0], camOrg[1], camOrg[2], col[0], col[1], col[2], 0.55);
+              pushV(lineVerts, tr.x, tr.y + 1.4, tr.z, col[0], col[1], col[2], 0.75);
+            }
+
+            // MOOS-IvP Avoidance Trajectory Curve (Priority 200)
+            if (sim.avoidPath.length > 1) {
+              for (let i = 0; i < sim.avoidPath.length - 1; i++) {
+                const p0 = sim.avoidPath[i], p1 = sim.avoidPath[i + 1];
+                pushV(lineVerts, p0[0], 0.48, p0[1], 1.0, 0.78, 0.16, 0.92);
+                pushV(lineVerts, p1[0], 0.48, p1[1], 1.0, 0.78, 0.16, 0.92);
+              }
+            }
+          }
+
+          // 3) Planned Lawn-Mower Survey Lines + Live EKF Fused Trajectory (Diagrams 2 & 4)
+          if (sim.overlays.track) {
+            for (let i = 0; i < SURVEY_LINES.length - 1; i++) {
+              const a = SURVEY_LINES[i], b = SURVEY_LINES[i + 1];
+              pushV(lineVerts, a[0], 0.25, a[1], 0.55, 0.85, 1.0, 0.22);
+              pushV(lineVerts, b[0], 0.25, b[1], 0.55, 0.85, 1.0, 0.22);
+            }
+            for (let i = 0; i < sim.ekfTrail.length - 1; i++) {
+              const a = sim.ekfTrail[i], b = sim.ekfTrail[i + 1];
+              const fade = (i + 1) / sim.ekfTrail.length;
+              pushV(lineVerts, a[0], a[1], a[2], 0.16, 0.98, 0.72, fade * 0.82);
+              pushV(lineVerts, b[0], b[1], b[2], 0.16, 0.98, 0.72, fade * 0.82);
+            }
+          }
+
+          // 4) RF / 4G-LTE Telemetry Arc + Geofence Perimeter (Diagrams 1, 7 & 8)
+          if (sim.overlays.comms) {
+            // Geofence border lines
+            const gf = [
+              [GEOFENCE.minX, GEOFENCE.minZ], [GEOFENCE.maxX, GEOFENCE.minZ],
+              [GEOFENCE.maxX, GEOFENCE.maxZ], [GEOFENCE.minX, GEOFENCE.maxZ],
+            ];
+            for (let i = 0; i < 4; i++) {
+              const a = gf[i], b = gf[(i + 1) % 4];
+              pushV(lineVerts, a[0], 0.45, a[1], 0.25, 0.80, 0.95, 0.34);
+              pushV(lineVerts, b[0], 0.45, b[1], 0.25, 0.80, 0.95, 0.34);
+            }
+
+            // Animated parabolic telemetry link from USV mast to Shore Station tower
+            if (sim.commMode !== "LOST") {
+              const mastPos = transformPoint(u.poseMat, [0.32, 2.35, -0.28]);
+              const towerPos = [SHORE_STATION[0] + 3.2, 10.8, SHORE_STATION[1] + 0.5];
+              const arcCol =
+                sim.commMode === "RADIO" ? [0.22, 0.88, 1.0] :
+                sim.commMode === "CELLULAR" ? [1.0, 0.78, 0.24] : [1.0, 0.35, 0.28];
+              const steps = 28;
+              const pulseT = (sim.time * 0.95) % 1.0;
+              for (let i = 0; i < steps; i++) {
+                const t0 = i / steps, t1 = (i + 1) / steps;
+                const arcY0 = lerp(mastPos[1], towerPos[1], t0) + Math.sin(t0 * PI) * 10.5;
+                const arcY1 = lerp(mastPos[1], towerPos[1], t1) + Math.sin(t1 * PI) * 10.5;
+                const p0 = [lerp(mastPos[0], towerPos[0], t0), arcY0, lerp(mastPos[2], towerPos[2], t0)];
+                const p1 = [lerp(mastPos[0], towerPos[0], t1), arcY1, lerp(mastPos[2], towerPos[2], t1)];
+                const glow = 0.22 + 0.75 * Math.exp(-Math.pow((t0 - pulseT) / 0.08, 2.0));
+                pushV(lineVerts, p0[0], p0[1], p0[2], arcCol[0], arcCol[1], arcCol[2], glow);
+                pushV(lineVerts, p1[0], p1[1], p1[2], arcCol[0], arcCol[1], arcCol[2], glow);
+              }
+            }
+          }
+
+          // 5) Sea Spray & Thruster Bubble Particles
+          for (const p of sim.particles) {
+            const fade = 1.0 - p.age / p.life;
+            if (p.type === 0) {
+              pushV(ptVerts, p.x, p.y, p.z, 0.92, 0.97, 1.0, fade * 0.62);
+            } else {
+              pushV(ptVerts, p.x, p.y, p.z, 0.68, 0.96, 1.0, fade * 0.55);
+            }
+          }
+
+          // Upload & Draw Additive Volumetric Triangles
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+          gl.uniform1f(fxU.uSoftCircle, 0.0);
+          gl.uniform1f(fxU.uPointSize, 1.0);
+          if (triVerts.length > 0) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, fxVbo);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triVerts), gl.DYNAMIC_DRAW);
+            gl.drawArrays(gl.TRIANGLES, 0, triVerts.length / 7);
+          }
+
+          // Upload & Draw Sensor Overlay Lines
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+          if (lineVerts.length > 0) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, fxVbo);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lineVerts), gl.DYNAMIC_DRAW);
+            gl.drawArrays(gl.LINES, 0, lineVerts.length / 7);
+          }
+
+          // Upload & Draw Soft Glowing Point Particles
+          if (ptVerts.length > 0) {
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            gl.uniform1f(fxU.uSoftCircle, 1.0);
+            gl.uniform1f(fxU.uPointSize, 52.0 * (window.devicePixelRatio || 1));
+            gl.bindBuffer(gl.ARRAY_BUFFER, fxVbo);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ptVerts), gl.DYNAMIC_DRAW);
+            gl.drawArrays(gl.POINTS, 0, ptVerts.length / 7);
+          }
+
+          gl.depthMask(true);
+          gl.disable(gl.BLEND);
+        }
+
+        // ============================================================
+        // 8. 2D Floating Tactical Callout Tags & Telemetry HUD Updates
+        // ============================================================
+        const labelOverlay = document.getElementById("label-overlay");
+        const tagUsv = document.createElement("div");
+        tagUsv.className = "world-tag mono";
+        const tagTraffic = document.createElement("div");
+        tagTraffic.className = "world-tag world-tag--warn mono";
+        const tagShore = document.createElement("div");
+        tagShore.className = "world-tag mono";
+        labelOverlay.append(tagUsv, tagTraffic, tagShore);
+
+        let hudHidden = false;
+        function updateFloatingLabels(vp) {
+          if (hudHidden) {
+            tagUsv.style.display = "none";
+            tagTraffic.style.display = "none";
+            tagShore.style.display = "none";
+            return;
+          }
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+
+          // Traffic Vessel YOLOv8 / COLREGS tag
+          const distT = Math.hypot(sim.traffic.x - sim.usv.x, sim.traffic.z - sim.usv.z);
+          const pTr = sim.overlays.lidar && distT < 45
+            ? projectToScreen(vp, [sim.traffic.x, sim.traffic.y + 3.1, sim.traffic.z], w, h)
+            : null;
+          if (pTr) {
+            tagTraffic.style.display = "block";
+            tagTraffic.style.left = `${pTr[0]}px`;
+            tagTraffic.style.top = `${pTr[1]}px`;
+            tagTraffic.className = `world-tag mono ${sim.colregsActive ? "world-tag--crit" : "world-tag--warn"}`;
+            tagTraffic.textContent = sim.colregsActive
+              ? `YOLOv8 VESSEL · CPA ${sim.cpaDist.toFixed(1)}m · GIVE-WAY`
+              : `AIS TARGET · ${distT.toFixed(0)}m`;
+          } else {
+            tagTraffic.style.display = "none";
+          }
+
+          // Shore Station tag
+          const pSh = sim.overlays.comms
+            ? projectToScreen(vp, [SHORE_STATION[0], 12.0, SHORE_STATION[1]], w, h)
+            : null;
+          if (pSh && pSh[1] > 70) {
+            tagShore.style.display = "block";
+            tagShore.style.left = `${pSh[0]}px`;
+            tagShore.style.top = `${pSh[1]}px`;
+            tagShore.textContent = `SHORE OPERATOR STATION · ${sim.commMode}`;
+          } else {
+            tagShore.style.display = "none";
+          }
+
+          // USV Overhead / Underwater callout
+          const pU = (sim.camMode === "overhead" || sim.camMode === "underwater")
+            ? projectToScreen(vp, [sim.usv.x, sim.usv.y + 2.4, sim.usv.z], w, h)
+            : null;
+          if (pU) {
+            tagUsv.style.display = "block";
+            tagUsv.style.left = `${pU[0]}px`;
+            tagUsv.style.top = `${pU[1]}px`;
+            tagUsv.textContent = `HYDRO-USV · ${sim.sonarMode}`;
+          } else {
+            tagUsv.style.display = "none";
+          }
+        }
+
+        const ui = {
+          badge: document.getElementById("mission-badge"),
+          subtext: document.getElementById("mission-subtext"),
+          sevDot: document.getElementById("severity-dot"),
+          sevBadge: document.getElementById("severity-badge"),
+          t1: document.getElementById("tier-1-pill"),
+          t2: document.getElementById("tier-2-pill"),
+          t3: document.getElementById("tier-3-pill"),
+          sonarTag: document.getElementById("sonar-mode-tag"),
+          covBar: document.getElementById("coverage-bar"),
+          valCov: document.getElementById("val-coverage"),
+          valDepth: document.getElementById("val-depth"),
+          valSwath: document.getElementById("val-swath"),
+          powerTag: document.getElementById("power-mode-tag"),
+          battBar: document.getElementById("battery-bar"),
+          valSoc: document.getElementById("val-soc"),
+          valPower: document.getElementById("val-power"),
+          valVolts: document.getElementById("val-volts"),
+          valSpeed: document.getElementById("val-speed"),
+          valHdg: document.getElementById("val-hdg"),
+          valAtt: document.getElementById("val-att"),
+          valThr: document.getElementById("val-thr"),
+          commTag: document.getElementById("comm-link-tag"),
+          valCpa: document.getElementById("val-cpa"),
+          valColregs: document.getElementById("val-colregs"),
+        };
+
+        let lastHudUpdate = 0;
+        function updateTelemetryHUD(nowMs) {
+          if (nowMs - lastHudUpdate < 120) return;
+          lastHudUpdate = nowMs;
+
+          const u = sim.usv;
+          const depth = Math.abs(getSeabedDepth(u.x, u.z));
+          const swath = sim.sonarMode === "MBES" ? clamp(depth * 1.84, 13, 28) : sim.sonarMode === "SBES" ? 2.4 : 0;
+
+          ui.badge.textContent = sim.missionState;
+          ui.subtext.textContent = sim.missionDetail;
+          ui.sevBadge.textContent = sim.severity;
+
+          const isCrit = sim.severity === "CRITICAL";
+          const isWarn = sim.severity === "WARNING" || sim.severity === "ERROR";
+          ui.sevDot.className = `inline-block w-2.5 h-2.5 rounded-full shrink-0 ${
+            isCrit ? "bg-rose-500 animate-pulse" : isWarn ? "bg-amber-400" : "bg-emerald-400"
+          }`;
+          ui.sevBadge.className = `tier-pill mono ml-auto ${isCrit ? "is-crit" : isWarn ? "is-warn" : "is-lit"}`;
+          ui.t1.className = `tier-pill mono ${sim.colregsActive ? "is-warn" : "is-lit"}`;
+          ui.t2.className = `tier-pill mono ${isCrit ? "is-crit" : "is-lit"}`;
+          ui.t3.className = `tier-pill mono ${sim.sonarMode === "MBES" ? "is-lit" : ""}`;
+
+          ui.sonarTag.textContent =
+            sim.sonarMode === "MBES" ? "MBES 512 @ 5Hz" :
+            sim.sonarMode === "SBES" ? "SBES ONLY" : "SONAR OFF";
+          ui.covBar.style.width = `${sim.coveragePct.toFixed(1)}%`;
+          ui.valCov.textContent = `${sim.coveragePct.toFixed(1)}%`;
+          ui.valDepth.textContent = `${depth.toFixed(1)} m`;
+          ui.valSwath.textContent = swath > 0 ? `${swath.toFixed(1)} m` : "—";
+
+          // Power draw calculation matching Diagram 6 (Thrusters 1100W + Med 170W + Low 17W)
+          const thrW = Math.round(((u.thrL + u.thrR) * 0.5) * 1100);
+          const medW = sim.sonarMode === "MBES" ? 170 : sim.sonarMode === "SBES" ? 120 : 100;
+          const totalW = thrW + medW + 17;
+          const volts = (44.2 + (sim.soc / 100) * 5.6).toFixed(1);
+
+          ui.powerTag.textContent = sim.powerMode;
+          ui.powerTag.className = `mono ${
+            sim.powerMode === "CRITICAL" ? "text-rose-400" :
+            sim.powerMode === "LOW POWER" ? "text-amber-300" :
+            sim.powerMode === "ECONOMY" ? "text-yellow-200" : "text-emerald-300"
+          }`;
+          ui.battBar.style.width = `${sim.soc.toFixed(1)}%`;
+          ui.battBar.className = `h-full transition-all duration-300 ${
+            sim.soc < 20 ? "bg-rose-500" : sim.soc < 40 ? "bg-amber-400" : sim.soc < 60 ? "bg-yellow-300" : "bg-emerald-400"
+          }`;
+          ui.valSoc.textContent = `SoC ${sim.soc.toFixed(1)}%`;
+          ui.valPower.textContent = `${totalW.toLocaleString()} W`;
+          ui.valVolts.textContent = `${volts} V`;
+
+          const hdgDeg = ((u.yaw * 180) / PI + 360) % 360;
+          const rollDeg = (u.roll * 180) / PI;
+          const pitchDeg = (u.pitch * 180) / PI;
+          ui.valSpeed.textContent = `${u.speed.toFixed(1)} m/s`;
+          ui.valHdg.textContent = `${String(Math.round(hdgDeg)).padStart(3, "0")}°`;
+          ui.valAtt.textContent = `${rollDeg >= 0 ? "+" : ""}${rollDeg.toFixed(1)}°/${pitchDeg >= 0 ? "+" : ""}${pitchDeg.toFixed(1)}°`;
+          ui.valThr.textContent = `${Math.round(u.thrL * 100)}%/${Math.round(u.thrR * 100)}%`;
+
+          ui.commTag.textContent =
+            sim.commMode === "RADIO" ? "RADIO 15km" :
+            sim.commMode === "CELLULAR" ? "4G/LTE BACKUP" :
+            sim.commMode === "DEGRADED" ? "DEGRADED" : "LINK LOST";
+          ui.commTag.className = `mono ${
+            sim.commMode === "RADIO" ? "text-cyan-300" :
+            sim.commMode === "CELLULAR" ? "text-amber-200" : "text-rose-400"
+          }`;
+          ui.valCpa.textContent = `${sim.cpaDist.toFixed(1)} m`;
+          ui.valColregs.textContent = sim.colregsRule;
+          ui.valColregs.className = sim.colregsActive ? "text-amber-300 font-semibold" : "text-emerald-300";
+        }
+
+        // ============================================================
+        // 9. Main Render Loop (60 FPS WebGL2)
+        // ============================================================
+        const wakeUniformBuf = new Float32Array(32 * 4);
+
+        function resizeCanvas() {
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          const w = Math.max(1, Math.floor(window.innerWidth * dpr));
+          const h = Math.max(1, Math.floor(window.innerHeight * dpr));
+          if (canvas.width !== w || canvas.height !== h) {
+            canvas.width = w;
+            canvas.height = h;
+            gl.viewport(0, 0, w, h);
+          }
+        }
+
+        function renderFrame() {
+          resizeCanvas();
+          const aspect = canvas.width / Math.max(1, canvas.height);
+          const proj = mat4Perspective((46 * PI) / 180, aspect, 0.25, 650.0);
+          const view = mat4LookAt(sim.camEye, sim.camTarget, [0, 1, 0]);
+          const vp = mat4Mul(proj, view);
+          const invVP = mat4Invert(vp);
+          const light = LIGHT_PRESETS[sim.lightIndex];
+
+          gl.clearColor(0.02, 0.08, 0.14, 1.0);
+          gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+          gl.enable(gl.DEPTH_TEST);
+          gl.depthFunc(gl.LEQUAL);
+
+          // 1) Atmospheric Sky Dome
+          gl.depthMask(false);
+          gl.useProgram(skyProg);
+          gl.uniformMatrix4fv(skyU.uInvVP, false, invVP);
+          gl.uniform3fv(skyU.uCamPos, sim.camEye);
+          gl.uniform3fv(skyU.uSunDir, light.sunDir);
+          gl.uniform3fv(skyU.uZenithCol, light.zenith);
+          gl.uniform3fv(skyU.uHorizonCol, light.horizon);
+          gl.uniform3fv(skyU.uSunCol, light.sunCol);
+          gl.uniform1f(skyU.uTime, sim.time);
+          gl.bindVertexArray(null);
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+          gl.depthMask(true);
+
+          // 2) Sculpted 3D Bathymetric Seabed (with real-time CUDA coverage map)
+          const depthNow = Math.abs(getSeabedDepth(sim.usv.x, sim.usv.z));
+          const swathHalf = sim.sonarMode === "MBES" ? clamp(depthNow * 0.92, 6.5, 14.0) : 1.5;
+          gl.useProgram(seabedProg);
+          gl.uniformMatrix4fv(seabedU.uVP, false, vp);
+          gl.uniform3fv(seabedU.uCamPos, sim.camEye);
+          gl.uniform3fv(seabedU.uSunDir, light.sunDir);
+          gl.uniform3fv(seabedU.uSunCol, light.sunCol);
+          gl.uniform3fv(seabedU.uHorizonCol, light.horizon);
+          gl.uniform1f(seabedU.uTime, sim.time);
+          gl.uniform1f(seabedU.uSeabedExtent, SEABED_EXTENT);
+          gl.uniform3f(seabedU.uUsvPos, sim.usv.x, sim.usv.y, sim.usv.z);
+          gl.uniform2f(seabedU.uUsvFwd, Math.sin(sim.usv.yaw), Math.cos(sim.usv.yaw));
+          gl.uniform1f(seabedU.uSonarActive, sim.overlays.sonar && sim.sonarMode !== "OFF" ? 1.0 : 0.0);
+          gl.uniform1f(seabedU.uSonarHalfWidth, swathHalf);
+          gl.activeTexture(gl.TEXTURE0);
+          gl.bindTexture(gl.TEXTURE_2D, coverageTex);
+          gl.uniform1i(seabedU.uCoverageTex, 0);
+          gl.bindVertexArray(meshes.seabed.vao);
+          gl.drawElements(gl.TRIANGLES, meshes.seabed.count, meshes.seabed.type, 0);
+
+          // 3) PBR 3D Assets: Catamaran USV, Traffic Vessel, Geofence Buoys, Shore Station
+          gl.useProgram(pbrProg);
+          gl.uniformMatrix4fv(pbrU.uVP, false, vp);
+          gl.uniform3fv(pbrU.uCamPos, sim.camEye);
+          gl.uniform3fv(pbrU.uSunDir, light.sunDir);
+          gl.uniform3fv(pbrU.uSunCol, light.sunCol);
+          gl.uniform3fv(pbrU.uZenithCol, light.zenith);
+          gl.uniform3fv(pbrU.uHorizonCol, light.horizon);
+          gl.uniform1f(pbrU.uTime, sim.time);
+          drawUSV();
+          drawTrafficVessel();
+          drawBuoysAndShoreStation();
+
+          // 4) Photorealistic Translucent Gerstner Ocean Surface (alpha blended over seafloor)
+          wakeUniformBuf.fill(0);
+          for (let i = 0; i < sim.wakePts.length && i < 32; i++) {
+            const w = sim.wakePts[i];
+            wakeUniformBuf[i * 4] = w.x;
+            wakeUniformBuf[i * 4 + 1] = w.z;
+            wakeUniformBuf[i * 4 + 2] = w.age;
+            wakeUniformBuf[i * 4 + 3] = w.intensity;
+          }
+          gl.enable(gl.BLEND);
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+          gl.useProgram(oceanProg);
+          gl.uniformMatrix4fv(oceanU.uVP, false, vp);
+          gl.uniform1f(oceanU.uTime, sim.time);
+          gl.uniform1f(oceanU.uSeaScale, sim.seaScale);
+          gl.uniform4fv(oceanU.uWavesA, wavesA);
+          gl.uniform4fv(oceanU.uWavesB, wavesB);
+          gl.uniform3fv(oceanU.uCamPos, sim.camEye);
+          gl.uniform3fv(oceanU.uSunDir, light.sunDir);
+          gl.uniform3fv(oceanU.uZenithCol, light.zenith);
+          gl.uniform3fv(oceanU.uHorizonCol, light.horizon);
+          gl.uniform3fv(oceanU.uSunCol, light.sunCol);
+          gl.uniform4fv(oceanU.uWakePts, wakeUniformBuf);
+          gl.uniform3f(oceanU.uUsvPos, sim.usv.x, sim.usv.y, sim.usv.z);
+          gl.uniform2f(oceanU.uUsvFwd, Math.sin(sim.usv.yaw), Math.cos(sim.usv.yaw));
+          gl.uniform1f(oceanU.uUsvSpeed, sim.usv.speed);
+          gl.uniform3f(oceanU.uTrafficPos, sim.traffic.x, sim.traffic.y, sim.traffic.z);
+          gl.uniform2f(oceanU.uTrafficFwd, Math.sin(sim.traffic.yaw), Math.cos(sim.traffic.yaw));
+          gl.bindVertexArray(meshes.ocean.vao);
+          gl.drawElements(gl.TRIANGLES, meshes.ocean.count, meshes.ocean.type, 0);
+          gl.disable(gl.BLEND);
+
+          // 5) Volumetric Sensor Overlays & Sea Spray / Bubble Particles
+          drawFxBatches(vp);
+
+          updateFloatingLabels(vp);
+        }
+
+        let lastFrameMs = performance.now();
+        function loop(nowMs) {
+          const dt = clamp((nowMs - lastFrameMs) / 1000, 0.001, 0.05);
+          lastFrameMs = nowMs;
+          if (!sim.paused) {
+            stepSimulation(dt);
+          }
+          renderFrame();
+          updateTelemetryHUD(nowMs);
+          requestAnimationFrame(loop);
+        }
+
+        // ============================================================
+        // 10. Interactive Orbit, Camera, Scenario & Overlay Controls
+        // ============================================================
+        let dragging = false;
+        let lastPtrX = 0, lastPtrY = 0;
+
+        function setCamMode(mode) {
+          sim.camMode = mode;
+          document.querySelectorAll("[data-cam]").forEach((b) => {
+            b.classList.toggle("is-active", b.dataset.cam === mode);
+          });
+        }
+
+        canvas.addEventListener("pointerdown", (e) => {
+          dragging = true;
+          lastPtrX = e.clientX;
+          lastPtrY = e.clientY;
+          canvas.setPointerCapture(e.pointerId);
+          // Smoothly hand off current camera vector into Free Orbit
+          if (sim.camMode !== "orbit") {
+            const dx = sim.camEye[0] - sim.usv.x;
+            const dy = sim.camEye[1] - (sim.usv.y + 0.6);
+            const dz = sim.camEye[2] - sim.usv.z;
+            sim.orbitDist = clamp(Math.hypot(dx, dy, dz), 5.0, 68.0);
+            sim.orbitYaw = Math.atan2(dx, dz);
+            sim.orbitPitch = clamp(Math.asin(clamp(dy / sim.orbitDist, -0.95, 0.95)), -0.75, 1.35);
+            setCamMode("orbit");
+          }
+        });
+
+        canvas.addEventListener("pointermove", (e) => {
+          if (!dragging) return;
+          const dx = e.clientX - lastPtrX;
+          const dy = e.clientY - lastPtrY;
+          lastPtrX = e.clientX;
+          lastPtrY = e.clientY;
+          sim.orbitYaw -= dx * 0.0065;
+          sim.orbitPitch = clamp(sim.orbitPitch + dy * 0.0055, -0.72, 1.38);
+        });
+
+        const endDrag = (e) => {
+          if (!dragging) return;
+          dragging = false;
+          if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+        };
+        canvas.addEventListener("pointerup", endDrag);
+        canvas.addEventListener("pointercancel", endDrag);
+
+        canvas.addEventListener(
+          "wheel",
+          (e) => {
+            e.preventDefault();
+            if (sim.camMode !== "orbit") {
+              const dx = sim.camEye[0] - sim.usv.x;
+              const dy = sim.camEye[1] - (sim.usv.y + 0.6);
+              const dz = sim.camEye[2] - sim.usv.z;
+              sim.orbitDist = clamp(Math.hypot(dx, dy, dz), 5.0, 68.0);
+              sim.orbitYaw = Math.atan2(dx, dz);
+              sim.orbitPitch = clamp(Math.asin(clamp(dy / sim.orbitDist, -0.95, 0.95)), -0.75, 1.35);
+              setCamMode("orbit");
+            }
+            sim.orbitDist = clamp(sim.orbitDist * (e.deltaY > 0 ? 1.1 : 0.91), 4.5, 72.0);
+          },
+          { passive: false }
+        );
+
+        document.querySelectorAll("[data-scenario]").forEach((btn) => {
+          btn.addEventListener("click", () => setScenario(btn.dataset.scenario));
+        });
+
+        document.querySelectorAll("[data-cam]").forEach((btn) => {
+          btn.addEventListener("click", () => setCamMode(btn.dataset.cam));
+        });
+
+        const btnPlay = document.getElementById("btn-play");
+        btnPlay.addEventListener("click", () => {
+          sim.paused = !sim.paused;
+          btnPlay.textContent = sim.paused ? "Play" : "Pause";
+          btnPlay.classList.toggle("is-active", sim.paused);
+        });
+
+        const btnTime = document.getElementById("btn-time");
+        btnTime.addEventListener("click", () => {
+          sim.lightIndex = (sim.lightIndex + 1) % LIGHT_PRESETS.length;
+          btnTime.textContent = LIGHT_PRESETS[sim.lightIndex].name;
+        });
+
+        document.getElementById("slider-sea").addEventListener("input", (e) => {
+          sim.seaScale = parseFloat(e.target.value);
+        });
+
+        const telemetryDrawer = document.getElementById("telemetry-drawer");
+        const btnTelToggle = document.getElementById("btn-telemetry-toggle");
+        // Auto-collapse telemetry drawer on narrow mobile screens so 3D view stays unobstructed
+        if (window.innerWidth < 760) {
+          telemetryDrawer.classList.add("hidden");
+          btnTelToggle.classList.remove("is-active");
+        }
+        btnTelToggle.addEventListener("click", () => {
+          const opening = telemetryDrawer.classList.contains("hidden");
+          telemetryDrawer.classList.toggle("hidden", !opening);
+          btnTelToggle.classList.toggle("is-active", opening);
+        });
+
+        const btnHudToggle = document.getElementById("btn-hud-toggle");
+        btnHudToggle.addEventListener("click", () => {
+          hudHidden = !hudHidden;
+          document.body.classList.toggle("hud-hidden", hudHidden);
+          btnHudToggle.textContent = hudHidden ? "Show HUD" : "Hide HUD";
+          btnHudToggle.classList.toggle("is-active", hudHidden);
+        });
+
+        document.getElementById("chk-sonar").addEventListener("change", (e) => (sim.overlays.sonar = e.target.checked));
+        document.getElementById("chk-lidar").addEventListener("change", (e) => (sim.overlays.lidar = e.target.checked));
+        document.getElementById("chk-track").addEventListener("change", (e) => (sim.overlays.track = e.target.checked));
+        document.getElementById("chk-comms").addEventListener("change", (e) => (sim.overlays.comms = e.target.checked));
+
+        window.addEventListener("keydown", (e) => {
+          if (e.code === "Space") {
+            e.preventDefault();
+            btnPlay.click();
+          } else if (e.key === "h" || e.key === "H") {
+            btnHudToggle.click();
+          } else if (e.key === "1") setCamMode("chase");
+          else if (e.key === "2") setCamMode("underwater");
+          else if (e.key === "3") setCamMode("bow");
+          else if (e.key === "4") setCamMode("overhead");
+        });
+
+        // Kick off initial physics frames so wake, pose, and camera start settled
+        for (let i = 0; i < 6; i++) stepSimulation(0.03);
+        requestAnimationFrame(loop);
+      })();
+    </script>
+  </body>
+</html>
