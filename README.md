@@ -5,7 +5,7 @@
 
 > Companion system architecture, mission state-machine, CUDA multibeam bathymetry, and COLREGs safety diagrams for **[hydro-usv-ros2](https://github.com/indian-aman/hydro-usv-ros2)**.
 
-**[Interactive Architecture Atlas (GitHub Pages)](https://indian-aman.github.io/hydro-usv-architecture/)** · **[Open in GitHub Codespaces](https://codespaces.new/indian-aman/hydro-usv-architecture)** · **[Contributing Guide](CONTRIBUTING.md)**
+**[Interactive Architecture Atlas (GitHub Pages)](https://indian-aman.github.io/hydro-usv-architecture/)** · **[Live 3D Ocean Simulation (WebGL2)](https://indian-aman.github.io/hydro-usv-architecture/simulation.html)** · **[Open in GitHub Codespaces](https://codespaces.new/indian-aman/hydro-usv-architecture)** · **[Contributing Guide](CONTRIBUTING.md)**
 
 ---
 

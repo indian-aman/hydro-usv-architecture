@@ -243,6 +243,10 @@ function buildStaticSite(manifest) {
 
   fs.writeFileSync(path.join(DIST_DIR, "index.html"), finalHtml, "utf8");
   fs.copyFileSync(
+    path.join(SITE_DIR, "simulation.html"),
+    path.join(DIST_DIR, "simulation.html")
+  );
+  fs.copyFileSync(
     path.join(SITE_DIR, "styles.css"),
     path.join(DIST_DIR, "styles.css")
   );
